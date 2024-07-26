@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/feature/java/logos/Java-Logo.svg">
+  <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/develop/logos/Java-Logo.svg">
 </div>
 
 # Índice
