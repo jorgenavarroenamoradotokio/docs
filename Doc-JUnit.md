@@ -17,13 +17,24 @@ JUnit 5 está compuesto por 3 subproyectos:
 
 # Fundametos basicos de una clase unitaria (TestCase)
 
-Consiste en la estructura basica que compone un TestCase. Estas unidades basicas estan compuestas por:
+La principal funcion es realizar test unitarios.
+Estos test unitarios los podemos definir como  metodos de pruebas de software mediante el cual se prueban unidades individuales de codigo fuente para determinar si realiza el funcionamiento esperado. 
 
+La principal razon para el uso de estas clases es la verificacion en un futuro lejano que el codigo siga funcionando correctamente
+
+Estas clases tienen la siguiente estructura basica:
 - La clase de prueba que contiene uno o más metodos de prueba
 - Los métodos no necesitan que sean públicos para ejecutarse.
 - Anotaciones y anotaciones especiales
 - Asercciones (Assertions).
 
+## Anotaciones
+
+- @Test: Se usa para indicar que metodo se va a usar para ejecutar una prueba unitaria
+- @BeforeEach se ejecuta antes de cada método @Test.
+- @AfterEach se ejecuta después de cada método @Test.
+- @BeforeAll se ejecuta antes de todos los @Test y una sola vez
+- @AfterAll se ejecuta después de todos los @Test y una sola vez.
 
 ## Anotaciones especiales
 
@@ -32,24 +43,34 @@ Utilidad que nos permite agregar funcionalidades extra que no son obligatorias d
 - DisplayName: sirve para agregar un texto más explicativo al test
 - Disabled: sirve para skiped un test unitario
 
-
 ## Asserts
 
 Las Aserciones son una colección de métodos de utilidad que admite afirmaciones de condiciones en las pruebas. Para ello se usan los siguientes métodos:
 
-- AssertEqual: Afirma que lo esperado y lo real sean iguales. Se usa para objeto primitivos ya que su función es parecida al usar ==
+- AssertEqual: Afirma que lo esperado y lo real sean iguales. Se usa para objeto primitivos ya que su función es parecida al usar ==, importante, admite un tercer parametro denominado delta que nos facilita para el tema de numeros un rango mas amplio de verificacion (importante para los decimales)
 - AssertSame: Afirma que lo esperado y lo real se refieren al mismo objeto.
+- AssertNotSame: Afirma que lo esperado y lo real se refieren a diferentes objeto.
 - AssertTrue: Afirma que el valor esperado sea True.
 - AssertFalse: Afirma que el valor esperado sea False.
 - AssertNull: Afirma que el valor esperado sea null.
 - AssertNotNull: Afirma que el valor esperado no sea null.
 - AssertExcepcion: Permite comprobar si se ha lanzado el error de un método
 - AssertTimeout: Permite verificar si la prueba unitaria a tardado en el tiempo estimado.
-- AssertThrow: Permite verificar que se ha lanzado la excepción esperada.
+- AssertThrow: Permite verificar que se ha lanzado la excepción esperada. 
+```java  
+assertThrows(AritmeticExcepcion.class,() -> 1/0, "No se puede dividir entre 0");
+```
 
 ### Grupo Assertions.
 
 Es la agrupación de multiples assert que se ejecutan de manera individual y si falla alguna de ellas no impide que la ejecución se termine, ya se informara del error posteriormente. Para agrupar todas las aserciones usaremos el método assertAll en el que le pasaremos una descripción y posteriormente los diferentes assert. 
+
+```java
+assertAll(
+    ()-> assertEquals(20, 10+10),
+    ()-> assertEquals(0, 10-10)
+);
+```
 
 ## Nested
 
@@ -66,6 +87,21 @@ Sirve para clasificar los test y agruparlos para que se ejecuten todas aquellas 
 ## Parametrizar un test
 
 La parametrización de un test es una funcionalidad que nos permite realizar múltiples pruebas sobre un método gracias a que se le pasa una lista de valores. Los parámetros de entrada pueden ser tan sencillos como una lista de valores usando @ValueSource, o más complejos, pasándole un documento csv @CSVSource - @CSVFile o un método @MethodSource.
+```java
+@ParameterizedTest(name = "{index} => a={0}, b={1}, sum={2}")
+@MethodSource("addProviderData")
+public void addTest(int a, int b, int sum){
+    assertEquals(sum, a + b);
+}
+
+private static Stream<Arguments> addProviderData(){
+    return Stream.of(
+        Arguments.of(6,2,8),
+        Arguments.of(-6,-2,-8),
+        Arguments.of(6,-2,4)
+    );
+}
+```
 
 ## Inyeccion de dependencias mediante testInfo y testReport
 
@@ -77,6 +113,16 @@ La parametrización de un test es una funcionalidad que nos permite realizar mú
 Junit 5 nos permite limitar el tiempo de ejecución de un test unitario cuando es demasiado pesado y necesita de muchos recursos del sistema, para ello nos da la anotación timeout en la cual indicaremos dentro de él el tiempo, por defecto la unidad de tiempo es segundos.
 - Timeout (5)
 - Timeout (value = 500, TimeUnit.MILISECONDS)
+
+```java
+@Test
+void timeOutTest(){
+    assertTimeOut(Duration.ofMillis(500), ()->{
+        // operacion a realizar
+    });
+}
+
+```
 
 # Ciclo de vida de un Test
 
@@ -147,19 +193,43 @@ Necesitaremos las dependencias de mockito-core y mockito-junit-jupiter
   - Estatica = mock(nb-clase.class)
   - Normal = Mockito.mock(nb-clase.class)
 - Para simular una llamada usaremos el método when en el cual indicaremos el método que usaremos, importante podemos indicarle unos parámetros en concreto o pasarle unos argumentos genercios como anyString, anyLong, anyMap….
-- Para simular la respuesta usaremos then nada mas terminar el when y dentro del paréntesis le indicaremos el retorno
-  - When (nb-clase.nb-metodo ()).then(resultadoSimulado)
+- Para simular la respuesta usaremos thenReturn nada mas terminar el when y dentro del paréntesis le indicaremos el retorno
+  - When (nb-clase.nb-metodo ()).thenReturn(resultadoSimulado)
+    ```java
+    @Test
+    void addTest(){
+        when(validNumber.check(3)).theReturn(false);
+    }
+    ```
 - Para simular las llamadas de excepciones usaremos throwWhen lo que nos permitira que cuando se ejecute una parte de nuestro código se lance la excepción expecificada para que posteriormente usando un assertThrow comprobemos que realmente se lanza y verificamos el test Unitario
   - When (nb-clase.nb-metodo).thenThrow(nb-clase-excepion.class)
-- Verify es un método estatico que se encarga de validar y verificar si realmente se han llamado a los métodos que estamos simulando. En caso de no ser simulados las pruebas se quedan como estado fallido, importante cuando se quiera verificar un meotodo que es posible que tuviera mas de una ejecución, verify fallara, necesitamos la aplicación del segundo parámetro del método que es times… ver apartado de mas abajo.  La estructura de la llamada básica seria asi
+- Verify es un método estatico que se encarga de validar y verificar si realmente se han llamado a los métodos que estamos simulando. En caso de no ser simulados las pruebas se quedan como estado fallido, importante cuando se quiera verificar un meotodo que es posible que tuviera mas de una ejecución, verify fallara, necesitamos la aplicación del segundo parámetro del método que es times…. La estructura de la llamada básica seria asi
   - Verify (nb-mock).nb-metodo-mockeado(valor-parametro-enviado)
 - Mockito nos permite capturar los argumentos que recibe de parámetro mediante la clase ArgumentCaptor para posteriormente evaluarlo con los assert de Junit. Para ello inicializaremos la clase ArgumentCapto<nb-clase> captor = ArgumentCaptor.forClass(nb-clase.class), para posteriormente en el verify pasarle comoparámetro captor.capture, para obtener el valor usaremos captor.getValue(). Existe otra manera de generar ArgumentCaptor, gracias a la anotación @Captor.
 - Mock cuenta tambien con anotaciones como @Mock, @InjectMocks, @ExtendsWith… Son anotaciones que nos ayudan a ahorrar tiempo a la hora de escribir nuestro código de prueba. Estas anotaciones por defecto están deshabilitadas, para poder activarlas se puede hacer de dos maneras mediante MockitoAnnotations.openMocks(this) la otra es con la anotación @ExtendWith
   - @Mock: Es una anotiacion que no ahorra el escribir la inicialización del mock manual
   - @InjectMocks: Es una anotación que nos permite crear la instancia de un objeto y que agrege a ella los mock necesarios que hemos creado anteriormente. Importante no funciona con interfaces, demos de usarla con las implementaciones de estas
+    ```java
+            @InjectMocks
+            private Add add;
+            @Mock
+            private ValidNumber validNumber
+
+            @BeforeAll
+            public void setUp(){
+                MockitoAnnotations.initMocks(this)
+            }
+
+            @Test
+            void addTest(){
+                add.add(3,2);
+                Mockito.verify(validNumber).check(3);
+
+            }
+    ```
   - @ExtennWith: Es una extensión de tipo clase que nos permite activar las anotaciones de @Mock e @InjectMocks para ellos pondreos @ExtendsWith (MockitoExtension.class)
   - @Captor: Es una anotación que nos permite definir AgumentCaptor
-- •	Mockito no solo nos permite retornar valores fijos, sino que también puede retornarnos Answer que son funciones anónimas que nos permiten modificar valores de nuestro objecto a retornar de manera dinámica, como puden ser simular la generación de un ID de manera autoincremental, en caso de no quere aplicar la anwser podemos aplicar directamente el método  doAnwser, funcionando de la siguiente manera doAnswer(lambda) doAnwser(invocation ->{}).when(nb-clase).nb-metodo(valor-parametro)
+- Mockito no solo nos permite retornar valores fijos, sino que también puede retornarnos Answer que son funciones anónimas que nos permiten modificar valores de nuestro objecto a retornar de manera dinámica, como puden ser simular la generación de un ID de manera autoincremental, en caso de no quere aplicar la anwser podemos aplicar directamente el método  doAnwser, funcionando de la siguiente manera doAnswer(lambda) doAnwser(invocation ->{}).when(nb-clase).nb-metodo(valor-parametro)
 - Argument matcher se encarga de validar que los argumentos que pasamos a un mockito son los esperados, es decir que sean del mismo tipo y tengan el valor esperado, para ello usarmos
   - Estatic 
     - Mockito.argThat(arg -> propiedad lambda)
@@ -167,7 +237,36 @@ Necesitaremos las dependencias de mockito-core y mockito-junit-jupiter
   - Nomal argThat (arg -> propiedad lambda)
   - Implementar clase anónima en la que podamos implementar nuestro método un mensaje de error personalizado y nuestro método matches, donde implementaremos la lógica de validación que queramos realizar
 - Mockito nos facilita la control de excepciones para los métodos que no retornan valores, para ello Mockito nos da el método doThrow(nb-clase.class), el único detalle que debemos de tener es que la invocación no es después de ejecutar el programa sino es antes. Para que posteriormente se pueda validar con assertThrow de Junit. doThrow(nb-clase.class).when(nb-clase) .nb-metodo(.nb-parametro)
+- Mockito nos permite controlar y comprobar que se han ejecutado excepciones usando when-thenTrhow
+    ```java
+    @Test
+    void addMockExceptionTest(){
+        when(validNumber.checkZero(0)).thenThrow(new AritmeticException("msg"));
+    }
+    ```
 - Mokito nos facilita el poder llamar de manera real el método que estamos simulando para ello usaremos doCallRealMethod().when(nb-class).nb-metodo(valor-parametro)
+    ```java
+    @Test
+    void addRelMethod(){
+        when(validNumber.check(3)).thenCallRealMethod();
+        assertEquals(true,validNumber.check(3));
+    }
+    ```
+- Mockito nos permite controlar de una manera más compleja usando una logica personalizada el valor de un metod que estamos simulando
+    ```java
+    @Test
+    void addDoubleToIntTest(){
+        Answer<Integer> answer = new Answer<Integer>(){
+            @Override
+            public Integer answer(InvocationOnMock invocationOnMock) throws Throwable{
+                return 7
+            }
+        };
+
+        when (validNumber.dobleToInt(7.7)).thenAnswer(answer);
+        assertEquals(7, validNumber.dobleToInt(7.7));
+    }
+    ```
 - Mockito nos permite verificar el orden de ejecución de los métodos que simulamos para ello usaremos el método inOrder el cual retorna un InOrder. 
 - Mockito nos permite comprobar el numero de invocaciones que tiene nuestro método mockeado, para ello usaremos verify donde le pasaremos como segundo argumento un times que indicaría el numero de veces que creemos/esperamos que se ejecute verify (nb-clase, times(num-veces)).nb-metodo(valor-parametro). Tambien posee otros métodos como
   - atLest que indica que como mínimo se ejecuto 1 vez, pero se pudo ejecutar n veces
