@@ -2,6 +2,8 @@
   <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/feature/java/logos/Java-Logo.svg">
 </div>
 
+1. [Introducción](#introducción)
+
 # Introducción
 
 Java es un lenguaje de programación orientado a objetos que fue desarrollado por Sun Microsystems en la década de 1990 y gestionado actualmente por Oracle Corporation. Java es un lenguaje de programación de alto nivel y es conocido por su portabilidad, lo que significa que el código Java puede ser ejecutado en cualquier plataforma que tenga una máquina virtual Java (JVM) instalada.
