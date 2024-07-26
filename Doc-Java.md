@@ -1365,14 +1365,17 @@ Principales métodos
 -	getNameCount: Devuelve el numero de elementos del path, sin incluir el raíz
 -	genaName(index): Devuelve la parte del path que ocupa la posición indicada. El primer elemento (sin incluir la raiz)tiene índice 0.
 
-#### Clase Files
+# Clase Files
 
 Es parte de la API de manejo de archivos introducida en la versión 7 de Java. Esta clase se encuentra en el paquete java.nio.file y se utiliza para realizar operaciones de bajo nivel en archivos y directorios, como copiar, mover, borrar, crear y modificar archivos.
 
 La clase Files proporciona una amplia gama de métodos útiles para trabajar con archivos y directorios, incluyendo la creación de nuevos archivos y directorios, la lectura y escritura de archivos, la verificación de la existencia de un archivo o directorio, la obtención de información de metadatos del archivo, como la fecha de creación y la última fecha de modificación, y la realización de operaciones de archivos en paralelo.
 Además, la clase Files también proporciona métodos para trabajar con enlaces simbólicos y para realizar operaciones atómicas en archivos, lo que significa que las operaciones se realizan como una sola unidad y no se pueden interrumpir por otras operaciones en el sistema.
 
-Principales métodos
+Principales métodos:
+- exist: Devuelve un boolean indicando si existe o no el documento.
+- isFile: Devuelve un booelan indicando si es un documento o no.
+- isDirectory: Devuelve un boolean indicando si es un directorio o no.
 -	lines: Devuelve un Stream con todas las líneas del fichero. A partir de ahí, se pueden aplicar los métodos stream para realizar búsquedas, transformaciones, filtrados, etc.
 -	readAllLines: Devuelve una lista con las cadenas del fichero, donde cada elemento corresponde con una línea
 -	newBufferedReader: Devuelve un objeto BufferedReader para realizar la lectura de forma clásica.
@@ -1392,3 +1395,542 @@ Principales métodos
 -	Delete: Elimina el fichero si existe, si no se produce una excepción, Si es un directorio, deberá estar vacio
 -	Delete ifExists: Elimina el fichero si existe, sino no hace nada. Si es un directorio, deberá estar vacio.
 -	createFile: Si el fichero existe, se produce una excepción.
+
+# Serialización
+
+La serialización en Java se refiere al proceso de convertir un objeto Java en un formato que pueda ser almacenado o transmitido a través de una red, y luego restaurarlo nuevamente a su forma original de objeto cuando sea necesario. En otras palabras, la serialización en Java es el proceso de convertir un objeto en una secuencia de bytes que puede ser guardada en un archivo o enviada a través de una red, y la deserialización es el proceso inverso de convertir esa secuencia de bytes nuevamente en un objeto Java.
+
+La serialización en Java es útil en situaciones en las que se necesita guardar objetos complejos en un archivo o enviarlos a través de una red. También se utiliza en tecnologías como Java RMI (Remote Method Invocation) y Java Messaging Service (JMS) para transmitir objetos Java entre diferentes sistemas.
+
+En Java, la serialización se puede implementar mediante la implementación de la interfaz Serializable en la clase del objeto que se desea serializar. La interfaz serializable no contiene ningún método. Las clases de envoltorio, String y las clases de colección ya implementan esta interfaz. Los objetos de clases que implementan Serializable se pueden convertir en una secuencia de bytes utilizando la clase ObjectOutputStream y se pueden restaurar utilizando la clase ObjectInputStream.
+
+El atributo transient es una palabra clave que se puede utilizar para indicar que un campo o propiedad de una clase no debe ser serializado durante el proceso de serialización. Cuando se marca un campo como transient, se excluye de la serialización y no se guarda en el archivo o se transmite a través de una red. 
+
+La razón por la que se utiliza la palabra clave transient es porque hay ciertos campos que no tienen sentido ser serializados. Por ejemplo, si una clase tiene un campo que contiene una conexión a una base de datos o un recurso de sistema, no tiene sentido serializarlo porque la conexión se perderá y no se podrá reconstruir en el momento de la deserialización. 
+Además, los campos marcados como transient pueden ser inicializados por un constructor o mediante lógica personalizada en el método readObject() durante la deserialización.
+
+# Base de datos (Acceso a datos con JDBC)
+
+JDBC (Java Database Connectivity) es una API (Application Programming Interface) de Java que proporciona una interfaz común para acceder a una amplia variedad de bases de datos relacionales. Con JDBC, los programadores de Java pueden escribir aplicaciones que interactúen con bases de datos, independientemente del sistema de gestión de bases de datos (DBMS) subyacente.
+
+JDBC proporciona un conjunto de clases e interfaces que permiten a los programadores de Java conectarse a una base de datos, enviar consultas y actualizar datos. Estas clases e interfaces se encuentran en el paquete java.sql y sus subpaquetes. Los programadores pueden utilizar JDBC para ejecutar consultas SQL y procesar los resultados, lo que les permite acceder a los datos almacenados en una base de datos.
+
+Principales clases:
+-	DriverManager: Proporciona un método estatico para poder obtener conexiones contra la base de datos.
+-	Connection: Representa una conexión contra la base de datos. La obtención de una conexión es un paso previo para poder operar contra la misma
+-	Statement: A través de este objeto podemos enviar consultas SQL a la base de datos
+-	PreparedStatement: Es una versión alternativa de Statement, con la que podemos precompilar consultas SQL antes de enviarlas a la BD.
+-	ResultSet: Cuando una consulta devuelve resultados (caso de las instrucciones Select), la manipulación de los mismos se realiza a través de un objeto ResultSet.
+
+Paso para operar contra una BD
+
+-	Cargar el driver 
+  - es una librería .jar que se incluye dentreo del classpath de la aplicacion.
+  - Desde JDBC 4 no es necesario realizar esta operación
+  - Versiones anteriores ```Class.forName(“com.mysql.jdbc.Driver”)```
+-	Establecimiento de la conexión con la BD.
+  -	La conexión con la base de datos se establece a través del método getConnection de DriverManager, que devuelve un objeto Connection
+  -	La cadena de conexión tiene el siguiente formato ```jdbc:<subprotocolo>:subname```. Donde suprotocolo es el tipo de base de datos y súbame depende de la base de datos.
+  -	El nombre de las properties se les puede suministrar usando la clase properties
+-	Ejecución de la consulta SQL.
+  -	Statement ejecuta las consultas usando el mentodo execute.
+  -	PreparedStatement ejecutamos consultas parametrizadas siendo 1 el primer parámetro usando el método executeQuery.
+-	Manipulación de resultados, si procede.
+  -	Para la lectura de datos y manipularlos usaremos la clase ResultSet
+  -	Next se desplaza al siguiente registro, si no hay niguno devolverá false
+  -	getXxxx(int col): Obtenemos el valor de la columna indicada. La posición de la primera columna es la 1.
+  -	getXXX(String col): Igual que el anterior, utilizando el nombre de la columna
+-	Cierre de la conexión.
+  -	Utilizando el método close
+  -	Mediante un try con recursos que cerrara automáticamente cuando salga del try
+
+# Excepciones. Conceptos y tipos
+
+Una excepción es una situación anómala que se pude producir durante la ejecución de un programa. Esto se produce debió a fallos de programación o situaciones que escapan al control del programador.  Para evitar la finalización del programa, se usa la gestión de excepciones para gestionar estos errores y reconducir el programa.
+Las excepciones están organizadas de la siguiente manera
+
+## Clasificación
+
+Según su naturaleza, una excepción puede ser
+-	Unchecked: Conocidas también como excepciones de sistema, son todas las excepciones subclase de RuntimeException. Se produce por errores de programación y no es obligatorio capturarlas.
+-	Checked: Son lanzadas por métodos de clases del API Java, especificas de cada clase. Es obligatorio capturarlas.
+Excepciones unchecked
+-	ArrayIndexOutOfBoundsException: Intento de acceder fuera de los límites de un array.
+-	NullPointerException: Acceso a métodos de un objeto con referencia a null
+-	SecurityException: Producida por una violación de seguridad.
+-	ClassCastException: Error al realizar una conversación de tipos.
+-	ArithmeticException: Operación matemática incorrecta
+-	IllegalArgumentException: Un método recibe como parámetro un valor que no es válido.
+
+## Errores
+
+Los errores son situaciones que se producen en un programa de la que no se puede recuperar, como un fallo en la JVM, falta de espacio en memoria…
+Sin embargo, lo errores también están representado por clases que heredan Error: OutOfMemoryError, StackOverFlowError, InternaError….
+
+### Captura de excepciones
+
+Las excepciones se capturan en un programa java a través de los bloques try catch.
+Podemos poner tantos bloques catch como posible excepciones se pudieran dar.
+En la zona try ira el código que ejecutaremos y en el catch el tratamiento de la excepción.
+
+No puede haber ninguna instrucción entre los bloques try y catch. Si se capturas varios tipos de excepciones que tienen relación de herencia entre ellas, los catch de las subclases deben ir antes que los que de las super clases.
+
+Desde la versión 7 de java existe la opción de multicatch, tenemos que tener en cuenta que no pueden tener relación de herencia, sino se producirá un error de compilación.
+
+Las excepciones se pueden complementar usando el bloque finally. Este bloque se ejecuta siempre, tanto si se produce la excepción como si no. Si se produce una excepción y no hay ningún catch para capturarla, se propagará la excepción al punto de llamada, pero antes ejecutará el bloque finally.
+
+## Métodos de exception
+
+Todas las clases de excepción heredan los siguientes métodos
+-	getMessage: Devuelve una cade de caracteres con un mensaje de error asociado a la excepción
+-	printStackTrace: Genera un volcado de error que es enviado a la consola.
+
+## Lanzamiento y propagación de excepciones
+
+La propagación de excepciones en Java se refiere a la capacidad de una excepción de ser lanzada desde un método a otro método superior en la pila de llamadas, en busca de un manejador de excepciones que pueda procesarla.
+
+Cuando se produce una excepción en un método, la excepción se envía a todos los métodos que lo llamaron, hasta que se encuentra un método que tiene un manejador de excepciones adecuado para procesar la excepción. Este proceso se conoce como propagación de excepciones.
+
+La propagación de excepciones en Java es importante para manejar situaciones de error que ocurren en un nivel inferior del código, pero que necesitan ser manejadas en un nivel superior. Por ejemplo, si un método en una clase no puede abrir un archivo, podría lanzar una excepción para indicar el error. Si el método que llama a este método no puede manejar la excepción, la excepción se propagará a otro método superior que pueda manejarla.
+
+En Java, la propagación de excepciones se realiza mediante la utilización de la cláusula "throws" en la firma del método. Al agregar "throws" seguido del tipo de excepción, se indica que el método puede lanzar una excepción de ese tipo y que los métodos que lo llamen deben manejar la excepción o propagarla a su vez.
+
+Podemos lanzar nosotros manualmente una excepción  según los requisitos que hemos programado en nuestra aplicación (debemos propagarla también uso de throws). En caso de propagar una excepción de tipo checked no hace falta usar throws en la firma del método.
+
+## Excepciones personalizadas
+
+Se puede crear una excepción personalizada definiendo una clase que herede Exception.
+
+## Try con recursos
+
+Los "try con recursos" o "try-with-resources" en Java son una estructura de control de flujo que se utiliza para asegurar que los recursos se cierren correctamente después de ser utilizados, incluso en caso de excepciones.
+
+En Java, es común que un programa utilice recursos externos como archivos, conexiones a bases de datos, sockets de red, entre otros. Es importante cerrar estos recursos correctamente después de usarlos, para evitar que queden abiertos y causen problemas en la aplicación o consuman recursos del sistema de manera innecesaria.
+
+Antes de la introducción de la estructura "try con recursos", la forma común de manejar el cierre de recursos era utilizando bloques "finally" después del bloque "try". Esto era propenso a errores y hacía el código más complejo.
+
+En este caso, la variable "recurso" es un objeto que implementa la interfaz "AutoCloseable", que se encarga de cerrar el recurso automáticamente después de que el bloque "try" termine, incluso en caso de excepciones.
+
+La estructura "try con recursos" garantiza que los recursos se cierren de manera adecuada y segura, y ayuda a hacer el código más claro y fácil de entender. Además, a partir de Java 9, es posible utilizar esta estructura con recursos que no sean de tipo "AutoCloseable", gracias a la introducción de la interfaz "java.lang.Cleaner"
+
+La creación del objeto puede realizarse antes del try, indicando después la variable entre paréntesis. En este caso, la variable se trata como constante efectiva, si modificas el contenido antes de usarla en el try data un error de compilación.
+
+## Interfaz AutoCloseable
+
+La interfaz "AutoCloseable" es una interfaz funcional introducida en Java 7, que se utiliza para implementar recursos que deben ser cerrados después de su uso.
+
+La interfaz "AutoCloseable" define un único método llamado "close()", que se utiliza para liberar los recursos asociados con un objeto después de su uso. Los recursos que se deben cerrar pueden ser, por ejemplo, archivos, sockets de red, conexiones a bases de datos, entre otros.
+
+Al implementar la interfaz "AutoCloseable", se garantiza que los recursos se cerrarán automáticamente cuando se utilizan en un bloque "try-with-resources", eliminando así la necesidad de tener que cerrar los recursos manualmente.
+
+# Concurrencia/Multitarea
+
+En Java, la multitarea se refiere a la capacidad de un programa para realizar varias tareas o procesos simultáneamente, también conocido como programación concurrente. La multitarea en Java se puede lograr de varias formas, entre ellas:
+
+-	Hilos (Threads): un hilo es un subproceso dentro de un programa que se ejecuta de forma independiente y concurrente con otros hilos. La programación de hilos en Java se puede realizar a través de la clase Thread o mediante la implementación de la interfaz Runnable.
+-	Executor framework: el framework Executor proporciona una forma de ejecutar tareas en segundo plano utilizando hilos en un conjunto predefinido de hilos. El framework también proporciona una forma de administrar los hilos y controlar su ejecución.
+-	Locks y semáforos: se utilizan para establecer una exclusión mutua entre los hilos para que solo uno de ellos pueda acceder al recurso compartido en un momento dado.
+
+## Condiciones de carrera
+
+Una condición de carrera (race condition) en Java se produce cuando dos o más hilos intentan acceder y manipular un recurso compartido al mismo tiempo, lo que puede provocar resultados impredecibles y errores en el programa. Las condiciones de carrera pueden ocurrir cuando los hilos comparten recursos, como variables, objetos o archivos, y estos recursos no están protegidos mediante técnicas de sincronización. Al no tener un mecanismo de sincronización adecuado, los hilos pueden leer y escribir en el recurso compartido al mismo tiempo, lo que puede provocar inconsistencias en los datos.
+
+Métodos y bloques sincronizados: se utilizan para asegurar que solo un hilo pueda acceder al recurso compartido a la vez.
+
+Es importante tener en cuenta que la sincronización en Java puede afectar el rendimiento del programa, por lo que se debe utilizar de manera adecuada y solo en los recursos que realmente lo requieran. En general, se recomienda utilizar la sincronización solo cuando sea necesario y siempre que sea posible utilizar estructuras de datos inmutables o evitando el uso de recursos compartidos en la medida de lo posible.
+
+## Threads
+
+La clase Thread en Java es una clase incorporada que proporciona una forma de crear y controlar hilos en un programa. Para utilizar la clase Thread, se debe crear una subclase que extienda la clase Thread y luego implementar el método run(). El método run() es el punto de entrada para el hilo y contiene el código que se ejecutará en segundo plano.
+
+A parte de run Thread proporciona otros métodos
+-	Start: para iniciar la ejecución del hilo
+-	Sleep: para hacer que el hilo se detenga durante un periodo de tiempo determinado
+-	Join: para esperar a que otro hilo termine antes de continuar.
+
+## Runnable
+
+La interfaz Runnable en Java es una interfaz funcional que define un solo método llamado run(). Esta interfaz se utiliza para crear hilos en Java de una manera más flexible que utilizando la clase Thread.
+
+Para utilizar la interfaz Runnable, se debe crear una clase que implemente la interfaz Runnable y luego implementar el método run(). Al igual que con la clase Thread, el método run() es el punto de entrada para el hilo y contiene el código que se ejecutará en segundo plano.
+
+Una vez que se ha creado una clase que implementa Runnable, se puede crear un objeto de esa clase y pasarlo como argumento al constructor de la clase Thread. Luego, se puede llamar al método start() en el objeto Thread para iniciar la ejecución del hilo.
+
+La principal ventaja de utilizar la interfaz Runnable en lugar de la clase Thread es que se puede extender una clase existente en Java y, al mismo tiempo, implementar la interfaz Runnable. Esto no es posible con la clase Thread, ya que Java no admite la herencia múltiple.
+Además, utilizar la interfaz Runnable permite separar la lógica de ejecución del hilo de la lógica de gestión de hilos. Esto puede hacer que el código sea más claro y fácil de entender, especialmente en aplicaciones grandes y complejas.
+
+## Executors
+
+La clase Executors en Java es una clase de utilidad que proporciona una forma fácil de crear y administrar hilos en un programa. Esta clase se utiliza para crear y gestionar un conjunto de hilos conocido como "pool de hilos".
+
+El pool de hilos es un grupo de hilos que están disponibles para realizar tareas en segundo plano en un programa. Al utilizar el pool de hilos, se pueden realizar varias tareas en paralelo sin tener que crear un nuevo hilo cada vez que se necesita realizar una tarea.
+
+La clase Executors proporciona varios métodos estáticos para crear diferentes tipos de pool de hilos, como newFixedThreadPool(), newSingleThreadExecutor(), newCachedThreadPool(), etc. Cada uno de estos métodos crea un pool de hilos con diferentes características.
+Por ejemplo, el método newFixedThreadPool() crea un pool de hilos con un número fijo de hilos, mientras que el método newCachedThreadPool() crea un pool de hilos que aumenta o disminuye su tamaño según la carga de trabajo.
+
+Una vez que se ha creado un pool de hilos, se pueden enviar tareas al pool para su ejecución utilizando el método execute() o submit(). El método execute() se utiliza para enviar tareas que no devuelven ningún resultado, mientras que el método submit() se utiliza para enviar tareas que devuelven un resultado.
+
+Además de los métodos para crear y enviar tareas al pool de hilos, la clase Executors también proporciona métodos para configurar la forma en que se manejan las tareas que no se pueden ejecutar debido a la falta de hilos disponibles en el pool de hilos.
+
+### ExecutorService
+
+Proporciona  métodos para el lanzamiento y ejecución de tareas de forma concurrente, utilizando un pool de threads (solo se cierran si se invoca al método shutdown).
+
+ Los métodos principales son:
+-	Submit(Runnable tarea): Lanza la tarea y la pone en ejecución concurrente con el resto.
+-	Submit(Callable tarea): Lo mismo que el anterior, pero para objetos Callable.
+-	Shutdown:Inicia el final del pool de hilos, por lo que no se aceptaran nuevas tareas.
+
+Se pueden crear implementaciones de ExecutorService a partir de los siguientes métodos estáticos de Executors:
+-	newCachedThreadPools: Crea un ExecutorService con un pool de threads variable que se crean a demanda.
+-	newFixedThreadPools(int hilos): Crea un pool con un número fijo de threads.
+-	newSingleThreadExecutors: Crea un ExecutorService que utiliza un único thread.
+-	newScheduledThreadPool(int corePoolSize): Devuelve un ScheduledExecutorService que permite ejecutar tareas periódicamente.
+
+### Interfaz Callable
+
+Al igual que Runnable, implementa una tara que va a ser ejecutada concurrentemente con otras. Su único método, call(), devuelve un resultado, permite declarar checked exceptions. Esta interfaz se usa principalmente para operaciones matematicas.
+
+### Interfaz Future
+
+Implementación que permite obtener el resultado de una operación asíncrona sin necesidad de que esté terminada.
+
+-	El método submit(Callable tarea) de ExecutorService devuelve un objeto Future que puede ser utilizado para acceder al resultado de la tarea y controlar su ejecución.
+-	isDone: Permite conocer si la tarea ha finalizado.
+-	Get: Devuelve el valor generado por Callable. Si aun no ha terminado la tarea a la espera del resultado.
+
+### Lock, semáforos y sincronización
+
+Interfaz que proporciona un mecanismo de bloqueo de hilos (también conocido como bloqueo de exclusión mutua) para controlar el acceso a recursos compartidos en entornos de programación multihilo.
+
+Un objeto Lock actúa como un monitor de exclusión mutua que permite que solo un hilo acceda a un recurso compartido a la vez, mientras que los demás hilos deben esperar hasta que se libere el bloqueo.
+
+La interfaz Lock proporciona métodos como "lock()" y "unlock()" para adquirir y liberar un bloqueo, respectivamente. Además, también proporciona métodos para intentar adquirir un bloqueo, que se pueden utilizar para evitar que un hilo se bloquee indefinidamente si no puede adquirir un bloqueo.
+
+Lock también puede ser utilizado para implementar patrones de sincronización más complejos que no son posibles con la palabra clave "synchronized" de Java. Por ejemplo, se puede usar Lock para implementar bloqueos justos (donde los hilos se adquieren el bloqueo en el mismo orden en que lo solicitaron) y bloqueos reentrantes (donde un hilo puede adquirir el mismo bloqueo varias veces sin bloquearse).
+
+Se puede obtener una implementación de Lock instanciando ReentrantLock, ReadLock o WriteLock.
+-	Lock: Bloquea el acceso al código a otros hilos
+-	Unlock: Desbloquea el acceso al código.
+
+### Colecciones para concurrencia
+
+Las colecciones para la concurrencia en Java son una serie de clases que se utilizan para manejar y procesar datos de manera segura en entornos concurrentes. Estas colecciones están diseñadas específicamente para ser utilizadas en aplicaciones en las que varios hilos acceden y manipulan los mismos datos al mismo tiempo
+
+-	ConcurrentMap: Subinterfaz de Map que garantiza operaciones thread safe en un entorno multitarea. Su principal implementacion es ConcurrentHashMap. Utiliza una técnica de segmentación para dividir el mapa en múltiples segmentos, cada uno de los cuales puede ser bloqueado de forma independiente para permitir un acceso concurrente seguro. Además, se utiliza un mecanismo de bloqueo de grano fino para garantizar que solo un hilo pueda modificar un segmento en un momento dado.
+-	CopyOnWriteArrayList: Variable de ArrayList para entornos de thread safe. Esta colección garantiza que las operaciones de lectura sean seguras sin necesidad de utilizar técnicas de bloqueo, ya que se crea una copia de la lista cada vez que se realiza una operación de escritura. De esta manera, los hilos pueden leer la lista sin preocuparse por las modificaciones que se están realizando al mismo tiempo
+-	CopyOnWriteArraySet: Variante de HasSet para entornos thread safe. Internamente utiliza un CopyOnWriteArrayList para realizar las operaciones.
+
+# Atomic
+
+La clase Atomic en Java se refiere a un conjunto de clases que proporcionan operaciones atómicas, es decir, operaciones que se ejecutan como una sola unidad indivisible y no pueden ser interrumpidas por otras operaciones. Estas clases se utilizan para garantizar la integridad de los datos en entornos de concurrencia, donde varios hilos de ejecución pueden acceder y modificar los mismos datos al mismo tiempo (thread-safe).
+
+La clase Atomic proporciona varios tipos de variables que pueden ser utilizadas de manera segura en entornos de concurrencia, tales como AtomicBoolean, AtomicInteger, AtomicLong, AtomicReference, entre otros. Cada uno de estos tipos de variables proporciona métodos para realizar operaciones atómicas, como incrementar o reducir un valor, cambiar el valor actual, comparar y establecer valores, y más. Utilizan internamente variables volatile (acceso directo a memoria) para garantizar la integridad de los datos.
+
+El uso de estas clases puede mejorar el rendimiento y la escalabilidad de aplicaciones que tienen que manejar concurrencia, ya que evitan la necesidad de sincronización manual en el código.
+
+## AtomicInteger/AtomicLong
+Adecuada para aplicaciones de tipo contador global
+Sus principales métodos son:
+-	incrementAndGet: Incrementa el contador interno y devuelve su valor.
+-	decrementAnGet: Disminuye el contador interno y devuelve su valor.
+-	Int addAndGet(int delta):  Añade el valor especificado a la variable interna y devuelve el valor de la misma.
+-	Get: Devuelve el valor actual del contador.
+
+## AtomicBoolean
+Adecuada para ser utilizado como flag o indicador global.
+
+Sus principales métodos son:
+-	Set(boolean new value): Establece el nuevo valor al indicador.
+-	Get: Devuelve el valor actual del indicador.
+-	compareAndSet(boolean expeted, boolean newValue): Si el valor actual es igual a expected, se asigna newValue como valor actual.
+ 
+# CyclicBarrier
+
+Clase que permite que un grupo de threads se sincronicen en un punto de control determinado, esperando uno al otro antes de continuar con su ejecución. Una vez que todos los threads han alcanzado el punto de barrera, se liberan y pueden continuar ejecutándose.
+
+CyclicBarrier se puede utilizar en una variedad de situaciones en las que se necesita sincronización entre threads, como en problemas de paralelismo y concurrencia en los que se desea que varios threads trabajen en paralelo en tareas independientes y luego esperen a que se completen todas las tareas antes de continuar.
+
+CyclicBarrier se crea mediante la instancia de la clase CyclicBarrier y se puede inicializar de dos maneras:
+-	CyclicBarrier(int hilos): Crea un CyclicBarrier que permite sincronizar el numero de hilos indicados en el constructor.
+-	CyclicBarrier(int hilos, Runnable action): Cuando todos los hilos alcanzan la barrera, se ejecuta la acción indicada en el segundo parámetro del constructor.
+
+La sincronización de los hilos se realiza a través del método await() de la clase. Cuando un hilo llama a este método, queda en espera en ese punto. Cuando el total de hilos que han realizado la llamada a await es igual al valor indicado en el constructor, se librean todos los hilos y se ejecuta el Runnable. El contador vuelve a poner a 0 tras alcanzar todos los hilos de la barrera.
+
+# Anotaciones
+
+Las anotaciones personalizadas, también conocidas como anotaciones de usuario o anotaciones definidas por el programador, son una característica de Java que permite a los desarrolladores definir sus propias anotaciones con metadatos específicos para sus programas.
+
+Las anotaciones personalizadas son útiles para los desarrolladores que desean agregar metadatos a sus programas sin tener que crear una nueva clase o interfaz. Pueden ser utilizados para definir características específicas de una clase o método, como la documentación, la validación de entrada o la seguridad. Además, las anotaciones personalizadas también pueden ser procesadas por herramientas de compilación o frameworks para automatizar tareas repetitivas o agregar funcionalidades adicionales a un programa.
+
+Se pueden indicar delante de clases, métodos o atributos. Siempre deben de ir delante del nombre del tipo. Las anotaciones personalizadas se definen utilizando la sintaxis de anotación de Java, que comienza con el símbolo "@" seguido del nombre de la anotación. Los desarrolladores pueden definir sus propias anotaciones personalizadas utilizando la palabra clave "interface". La interfaz debe de estar siempre anotada a su vez con dos anotaciones especiales, conocidas como metaanotaciones que son @Target y @Retention. En cuanto al interior de la interfaz, ésta está formada por una serie de métodos que determinan los atributos expuestos por la anotación.
+ 
+## Metaanotacion Target
+
+Sirve para especificar los elementos de programa a los que se puede aplicar una anotación personalizada y garantizar que solo se use en el contexto adecuado de la anotación.
+
+-	ElementType.TYPE: Se aplica a un tipo (clase, interface, enumeración)
+-	ElementType.FIELD: Se aplica a un miembro de la clase.
+-	ElementType.METHOD: Se aplica a un método.
+-	ElementType.PARAMETER: Se aplica a parámetros de un método.
+-	ElementType.CONSTRUCTOR: Se aplica a constructores.
+-	ElementType.LOCAL_VARIABLE: Se aplica a variables locales.
+-	ElementType.ANNOTATION_TYPE: Indica que el tipo declarado en si es un tipo de anotación
+
+## Metaanotacion Retention
+
+Sirve para especificar la duración de una anotación personalizada, es decir, hasta qué punto la anotación debe ser retenida y accesible en tiempo de ejecución
+
+-	RetentionPolicy.SOURCE: Retenida solo a nivel de código, por lo que es ignorada por el compilador.
+-	RetentionPolicy.CLASS: Retenida en tiempo de compilación, pero ignorada en tiempo de ejecución.
+-	RetentionPolicy.RUNTIME: Retenida en tiempo de ejecución y solo se puede acceder a ella en este tiempo.
+
+## Metaanotacion Repetable
+
+Sirve para permitir que una anotación personalizada se aplique múltiples veces en el mismo elemento de programa.
+
+## Metaanotacion SuppressWarnings
+
+Sirve para suprimir los warnings (advertencias) del compilador en un elemento de programa específico, como una variable, método o clase.
+
+Los nombres de los warnings que se pueden suprimir varían según la versión del compilador Java, pero algunos ejemplos comunes incluyen:
+
+-	unchecked: para suprimir warnings sobre el uso de tipos genéricos sin verificación adecuada.
+-	deprecation: para suprimir warnings sobre el uso de elementos de programa que han sido marcados como obsoletos.
+-	rawtypes: para suprimir warnings sobre el uso de tipos sin parámetros de tipo.
+
+## Metaanotacion Override
+
+Se utiliza delante de un método de instancia para indicar que dicho método esta siendo sobreescrito. Es utilizada por el compilador.
+
+## Metaanotacion Deprecated
+
+Se utiliza para indicar que una clase, atributo o metodo esta deprecated y no se recomiendoa su uso. Es utilizada en tiempo de ejecución.
+
+## Metaanotacion SafeVarargs
+
+Utilizada sobre métodos y constructores para afirmar que el parámetro vaarargs no realiza operaciones potencialmente inseguras.
+
+# Localización e Internalización
+
+Consiste en desarrollar aplicaciones para múltiples idiomas y adaptadas a determinadas localizaciones geográficas. Los textos se incluyen en archivos de recursos que son cargados dinámicamente en tiempo de ejecución.
+La clase Locale permite establecer la localización geográfica e idioma con el que se va a trabajar.
+
+## Archivos de recursos
+
+Para cada idioma, se creara un archivo de texto .properties con parejas clave = valor que incluyan los diferentes textos a mostrar. Todos los códigos de prefijo según norma ISO 639-1. Nombrearchivo_prefijo.properties -> mensajes_es.properties ; mensajes_en.properties
+
+## Clase Locale
+
+Es una clase que se utiliza para representar información sobre una región geográfica, como el idioma y la ubicación. Esta clase proporciona una manera de especificar la configuración regional para la internacionalización de aplicaciones Java. Se puede utilizar para representar diferentes configuraciones regionales, como idioma, país y variante. Por ejemplo, la configuración regional "en_US" representa el idioma inglés y los Estados Unidos como el país.
+
+Se puede crear un objeto Local con los constructores:
+-	Locale (idioma)
+-	Locale(String idioma, String pais).
+-	Locale(String idioma, String país, String variante).
+
+Se pueden usar las constantes de Locale como Locale.US, Locale.CANADA…
+En caso de no querer usar la configuración por defecto del idioma detectada por el propio programa, podemos modificarla usando el método estático setDefgault donde le pasaremos el Local que queramos que sea por defecto.
+
+Para poder realizar la carga de un recurso asociado con una determinada localización debemos crear un objeto ResouirceBundle y para poder obtener los textos usaremos el metodo getString(String clave). En caso de no existir el archivo para la localización indicada, intenta el de la localización por defecto, sino el predeterminado (sin prefijo).
+
+# Formateado de datos
+
+Se refiere a la manipulación de cadenas de texto para que se presenten de una manera específica y legible.
+
+Para el formateo de fechas y números se usan las siguientes clases:
+-	NumberFormat: Establece un formato para numero.
+-	DateFormat: Permite formatear fechas.
+-	SimpleDateFormat: Subclase de DateFormat.
+- DateTimeFormatter: Formateado de nuevas clases de fecha.
+  
+# Pautas para codificación segura
+
+Son un conjunto de reglas que evitan efectos indeseados ante posibles ataques externos. Se organizan en nueve secciones
+-	Denegación de servicio
+-	Confidencialidad.
+-	Inyección e inclusión
+-	Accesibilidad
+-	Validación de datos
+-	Mutabilidad
+-	Construcción de objetos
+-	Serialización
+-	Control de acceso.
+
+## Denegación del servicio
+
+Comprobar la entrada de datos en un sistema para evitar que causen un consumo excesivo de recursos y que pueda afectar a la CPU o la memoria.
+Liberar recursos en todas las situaciones.
+Sistema robusto de gestiones de error y excepciones.
+
+## Confidencialidad
+
+Los datos confidenciales solo deberían ser visibles dentro de un contexto limitado.
+Eliminar información sensible de volcado de errores.
+No realizar registros de log de información sensible.
+Considerar eliminar información sensible de la memoria después de su uso.
+
+## Inyección
+
+Es la inserción de código maligno en las peticiones sobre nuestra aplicación, la inyección más conocida es la SQL. Para evitar la inyección SQL usaremos la interfaz PreparedStatement.
+Evitar la inyección de valores excepcionales en un punto flotante (validación de datos antes de enviar la petición).
+
+## Accesibilidad
+
+Limitar la accesibilidad de clases, métodos y atributos al mínimo requerido por nuestro código.
+Limitar la extensiblidad de clases y métodos. Para evitar herencias y sobrescrituras malicisas, debemos definirlos como final. Si una clase debe usar otra, preferible composión a herencia.
+Evitar cambios en una super clase para que las subclases no se vean afectadas.
+
+## Validación de datos
+
+Validar siempre datos de entrada, a fin de evitar que puedan alterar el flujo de nuestro código o corromper el estado de objetos.
+No se debe confiar solo en la validación del lado cliente.
+Definir envoltorios alrededor de métodos nativos.
+
+## Mutabilidad
+
+Crear copias de valores de salida mutables. Cuando un método devuelve un dato que es mutable, preferible devolver una copia.
+No exponer colecciones modificables.
+Definir atributos públicos estáticos como finales. 
+
+## Construcción objetos
+
+Evitar constructores públicos de clases sensibles.
+No establecer valores de atributos en el constructor, hasta que todas las comprobaciones se hayan realizado.
+Evitar desde los constructores llamadas a métodos que pueden ser sobrescritos.
+
+## Serialización
+
+Evitar la serialización de clases sensibles.
+Proteger datos sensibles durante la serialización.
+Evitar serializar determinados datos durante el proceso de serialización, definiéndolos como transient.
+Ser conscientes de que, durante el proceso de deserialización, se crea un objeto de la clase sin invocar a constructor alguno.
+
+## Control de acceso
+
+Invocaciones seguras mediante doPrivileged (permite la lectura y escritura de propiedades y ubicaciones que normalmente no se pueden).
+
+# Novedades en versiones posteriores a Java 11
+
+Se incorporan los siguientes tópicos/objetivos en este examen, correspondientes a novedades introducidas desde java 12 a java 17
+-	Mejoras en instrucciones switch
+-	Bloque de texto
+-	Coincidencia de patrones en instance of
+-	Records
+-	Clases e interfaces sealed
+-	Manipulación de fechas con java.time
+
+## Instrucción switch
+
+Múltiples valores en case.
+Desde la versión Java 14, la clausula case de un switch puede incluir varios valores separados por “,”
+Al igual que un case simple, lo valores del case múltiple deben ser literales, constantes o tipos enumerados.
+Ejemplo case 2, 3, 4
+
+### Expresiones switch
+
+Desde java 14, es posible utilizar la instrucción switch para devolver un resultado en una expresión.
+Ejemplo 
+```java 
+String resultado = switch (nota){ case 1, 2, 3, 4 -> “Suspenso”;};
+```
+
+### Sintaxis expresiones switch
+
+Se utiliza -> en lugar de “:” para indicar las instrucciones de cada bloque case.
+Si hay más de una instrucción, se delimita por llaves y el valor se devuelve mediante la instrucción yield:
+No se utiliza la instrucción break.
+Es obligatorio el uso de default, salvo que estén contemplados todos los posibles valores en los case.
+
+## Bloques de texto
+
+Es posible representar un texto que contenga caracteres especiales, como saltos de línea y comillas, delimitándolo entre tripes comillas “””y”””.
+Es muy útil, por ejemplo, para JSON.
+Se representan todos los caracteres der la cadena, incluidos saltos de línea.
+Importante, el delimitador de inicio en línea debe der ser independiente.
+
+### Espacios
+
+En bloques de texto multilínea, los espacios antes del salto de línea son eliminados automáticamente, a no ser que se indiquen explícitamente (carácter \s).
+Si no queremos que se introduzca un salto al final de cada línea, se utilizara el símbolo (\)
+No podrá indicarse ningún carácter después de dicho símbolo.
+
+### Indentación
+
+En java 12 la clase String incorpora el método indent(int) para añadir espacios en una cadena.
+Añade tantos espacios al principio de cada línea como se indiquen en el número, si ese es negativo los elimina.
+Incluye un salto de línea final si no existe.
+
+### StripIndent
+
+Método incorporado a la clase String en java 15 que, tras una concatrenacion, elimina los espacios existentes antes de un salto de línea.
+
+## Coincidencias de patrones con instanceof
+
+Es un operador que se utiliza para comprobar si un objeto es de un determinado tipo. El operador devuelve un valor booleano que indica si el objeto dado es una instancia de la clase especificada, o una instancia de una subclase de la clase especificada. En caso de no existir una relación de herencia entre el tipo del objeto y la clase indicada como segundo operador, se dará un error de compilación.
+Desde Java 16 se puede realizar instanceof para asignar el objeto a una variable del tipo específico, sin realizar un cast.
+
+```java
+If(obj instanceof String s) sysout(s.length());
+```
+
+## Records
+
+Es un tipo de dato introducido en la versión 16 de Java, que se utiliza para representar datos inmutables en forma de objetos. Un record se define mediante la palabra clave "record" seguida del nombre del tipo y una lista de campos separados por comas.
+
+Los records se utilizan para representar datos que tienen un conjunto fijo de campos y que no cambian después de su creación. Los registros son inmutables por defecto, lo que significa que una vez creados, no se pueden modificar sus campos, no puede ser heredado y no pueden heredar ninguna clase existente.
+
+Además de los campos, un registro también puede tener constructores, métodos y otros elementos típicos de una clase en Java. Los registros son una alternativa a las clases de Java para representar datos inmutables, pero se diferencian en que se diseñan para tener menos verbosidad y para ser más fáciles de escribir y leer que las clases convencionales.
+
+Genera de forma automática:
+-	Los atributos de la clase
+-	La implementación del constructor
+-	Métodos para recuperación de valores
+-	Implementación de toString y equals
+
+### Constructor compacto
+
+Es una forma abreviada y más concisa de definir un constructor para una clase. Este tipo de constructor se utiliza comúnmente con los "records" en Java, aunque también puede ser utilizado en otros tipos de clases.
+El constructor compacto permite inicializar los campos de una clase de manera más sencilla y legible, ya que evita tener que escribir el código de asignación para cada campo en una línea separada. Además, cuando se utilizan "records" en Java, el constructor compacto se genera automáticamente a partir de los campos de la clase, lo que reduce aún más la cantidad de código necesario.
+
+### Sobrecarga de constructores
+
+Se pueden incluir constructores adicionales, pero siempre tendrán que llamar al canónico (creado por defecto).
+
+## Sealed clases
+
+Una clase sellada (sealed class) es una clase que se define con una restricción sobre las subclases que se pueden crear. En otras palabras, una clase sellada especifica qué clases pueden ser subclases directas de ella y, por lo tanto, restringe la jerarquía de herencia de la clase.
+
+Para declarar una clase sellada en Java, se utiliza la palabra clave "sealed" antes de la palabra clave "class", seguida de la lista de clases permitidas para heredar de esta clase.
+-	Las subclases, deben ser declaradas como non-sealed, sealed o final.
+-	Todas las clases implicadas deben formar parte del mismo modulo o, en caso de ser módulos anónimos, deben de estar en el mismo paquete.
+-	Cada clase permitida, debe extender directamente la sealed class.
+-	Las subclases deben ser definidas obligatoriamente con alguno de los modificadores: non-sealed, sealed, final.
+-	Si una subclase permitida se define como non-sealed, todas las subclases de esta tendrían acceso a la clase base.
+-	Sealed también puede ser aplicado a interfaces, permitiendo la herencia e implementación solo a ciertas interfaces y clases. 
+-	En el caso de una interfaz permitida esta solo podrá ser declarada como non-sealed o sealed, nunca final.
+ 
+## Manipulación de fechas con java.time
+
+Desde java 8, se incluyen las siguientes clases en java.time, para la manipulación de fechas y horas.
+No disponen de constructores públicos.
+Se crean a través del métodos estáticos (of).
+Los valores erróneos provocarían una excepción.
+-	LocalDate: Manipulación de fechas, formato local.
+-	LocalTime: Manipulación de horas.
+-	LocalDateTime: Manipulación de fechas más horas.
+-	ZonedDateTime: Manipulación de fechas y horas en zona horaria.
+-	Instant: Instante de tiempo concreto.
+-	Period: Manipulación de periodo de tiempos.
+-	Duration: Manipulación de periodo de horas.
+
+Se pueden crear objetos de fecha-hora, a partir de una cadena de caracteres con el formato estándar de fecha/hora. Si la cadena tiene un formato incorrecto se produce una excepción de tipo DateTimeException (por defecto la fechas son yyyy-MM-ddTHH:mm:ss). Aunque se puede indicar que la cadena tiene un formato especifico usando DateTimeFormatter.ofPattern
+Para manipular las calses anterirores, disponemos de métodos para obtener una nueva fecha resultante de la suma-resta de una cantidad. Estos métodos no modifican el valor original, dado que los objetos son inmutables ya que retornan un valor.
+
+La clase instant se encarga de representar un momento de tiempo concreto en la zona GMT, se pueden crear a partir de un ZonedDateTime.
+
+La clase Period representa un periodo de tiempo, medido en años, meses y días, se pueden sumar/restar periodos de tiempo a objetos de fecha, pero no a LocalTime (UnsupportedTemporalTypeException). Mediante el método estático between de Period se puede obtener el intervalo de tiempo entre dos fechas en formato Period. Únicamente puede utilizarse con objetos LocalDate.
+
+La clase duration, representa un intervalo de tiempo medido en horas, minutos, segundos. Se puede sumar/restar duraciones a objetos de hora, pero no a objetos LocalDate. Mediante el método estático between de Duration se puede obtener el intervalo de tiempo entre dos fechas en formato Duration. Se puede utilizarse con objetos que contengan datos de hora.
+
+Los cambios de hora se tienen en cuenta la manipulación de objetos ZonedDateTime.
