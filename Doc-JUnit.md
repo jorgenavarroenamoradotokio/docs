@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/feature/jUnit/logos/JUnit-Logo.svg">
+  <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/develop/logos/JUnit-Logo.svg">
 </div>
 
 # Intoduccion
