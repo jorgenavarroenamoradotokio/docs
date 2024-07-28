@@ -86,22 +86,90 @@ Sirve para clasificar los test y agruparlos para que se ejecuten todas aquellas 
 
 ## Parametrizar un test
 
-La parametrización de un test es una funcionalidad que nos permite realizar múltiples pruebas sobre un método gracias a que se le pasa una lista de valores. Los parámetros de entrada pueden ser tan sencillos como una lista de valores usando @ValueSource, o más complejos, pasándole un documento csv @CSVSource - @CSVFile o un método @MethodSource.
-```java
-@ParameterizedTest(name = "{index} => a={0}, b={1}, sum={2}")
-@MethodSource("addProviderData")
-public void addTest(int a, int b, int sum){
-    assertEquals(sum, a + b);
-}
+La parametrización de un test es una funcionalidad que nos permite realizar múltiples pruebas sobre un método gracias a que se le pasa una lista de valores. Los parámetros de entrada pueden ser tan sencillos como una lista de valores usando @ValueSource, o más complejos, pasándole un documento csv @CSVSource - @CSVFile, un método @MethodSource o un Enum @EnumSource.
 
-private static Stream<Arguments> addProviderData(){
-    return Stream.of(
-        Arguments.of(6,2,8),
-        Arguments.of(-6,-2,-8),
-        Arguments.of(6,-2,4)
-    );
-}
-```
+Para que sean mas descriptivos las pruebas se ParameterizedTest tiene los siguientes placeholders
+- {DisplayName} y {DisplayNameGeneration} para personalizar los nombres de las pruebas
+    ```java
+    @ParameterizedTest(name= "Check blank {displayName}")
+    ``` 
+- {index}: El índice de la ejecución del test (comienza en 1).
+    ```java
+    @ParameterizedTest(name= "Check blank {index}")
+    ``` 
+- {arguments}: Una representación basada en toString() de todos los argumentos.
+    ```java
+    @ParameterizedTest(name= "Check blank {arguments}")
+    ``` 
+- {0}, {1}, ..., {n}: Representaciones basadas en toString() de los argumentos individuales.
+    ```java
+    @ParameterizedTest(name= "Check blank {0}")
+    ``` 
+
+Parametros de entrada
+- Parametrizacion mediante @ValueSource
+    ```java
+    @ParameterizedTest
+    @ValueSource(strings = {"abc","asd",""})
+    void checkBlanks(String value){
+        assertTrue(StringsUtils.isBlank(value));
+    }
+    ``` 
+- Parametrizacion mediante @EnumSource
+    ```java
+    enum EnumValues{
+        ABC, ASD, WXY
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = EnumValues.class, names = {"ABC"}, mode = EnumSource.Mode.EXCLUDE)
+    public void excludeEnumValue(Object value){
+        System.out.println(value.toString());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = EnumValues.class, names = {"A.."}, mode = EnumSource.Mode.MATCH_ALL)
+    public void matchAllEnumValue(Object value){
+        System.out.println(value.toString());
+    }
+    ```
+
+- Parametrizacion mediante @MethodSource
+    ```java
+    @ParameterizedTest(name = "{index} => a={0}, b={1}, sum={2}")
+    @MethodSource("addProviderData")
+    public void addTest(int a, int b, int sum){
+        assertEquals(sum, a + b);
+    }
+
+    private static Stream<Arguments> addProviderData(){
+        return Stream.of(
+            Arguments.of(6,2,8),
+            Arguments.of(-6,-2,-8),
+            Arguments.of(6,-2,4)
+        );
+    }
+    ```
+- Parametrizacion mediante @CsvSource
+    ```java
+    @ParameterizedTest
+    @CsvSource({
+        "Audi,55", 
+        "Tesla,99",
+        "Ferrari,101"
+    })
+    public void csvSourceMethod(String car, int quantity){
+        System.out.println(car + ": "+quantity);
+    }
+    ```
+- Parametrizacion mediante @CsvFileSource
+    ```java
+    @ParameterizedTest
+    @CsvFileSource(files = "src/test/java/resources/input.csv")
+    public void csvFileSource(String car, int quantity){
+        System.out.println(car + ": "+quantity);
+    }
+    ```
 
 ## Inyeccion de dependencias mediante testInfo y testReport
 
@@ -178,102 +246,158 @@ La metodología de pruebas que se suele implementar con este framework es BDD (B
 
 Necesitaremos las dependencias de mockito-core y mockito-junit-jupiter
 
-## Funcionamiento de mockito
-
-Es un framework de pruebas compatible con Junit 5 que nos permite crear objetos simulados (mock) en un entorno controlado y determinado. Gracias a que nos permite simular funcionalidades de componentes/capas de servicios, apis, datos que no tenemos control sobre su funcionamiento y casuísticas posibles.
-
-La metodología de pruebas que se suele implementar con este framework es BDD (Behavior Driven Development) o desarrollo impulsado por el comportamiento, aunque también se aplica el TDD.
-
-Necesitaremos las dependencias de mockito-core y mockito-junit-jupiter
-
-## Funcionamiento de mockito
+## Caracteristicas basicas
 
 - Los métodos que solo se les puede hacer mock son métodos de carácter publico o default
 - Para inicializar un mock tenemos dos maneras una mediante implementación estatica o implementación nomal
   - Estatica = mock(nb-clase.class)
   - Normal = Mockito.mock(nb-clase.class)
-- Para simular una llamada usaremos el método when en el cual indicaremos el método que usaremos, importante podemos indicarle unos parámetros en concreto o pasarle unos argumentos genercios como anyString, anyLong, anyMap….
-- Para simular la respuesta usaremos thenReturn nada mas terminar el when y dentro del paréntesis le indicaremos el retorno
-  - When (nb-clase.nb-metodo ()).thenReturn(resultadoSimulado)
+
+## Implementacion de simulaciones
+
+Mockito nos permite simular comportamientos de objetos para facilitar las pruebas unitarias.
+
+Mock cuenta tambien con anotaciones como @Mock, @InjectMocks, @ExtendsWith… Son anotaciones que nos ayudan a ahorrar tiempo a la hora de escribir nuestro código de prueba. Estas anotaciones por defecto están deshabilitadas, para poder activarlas se puede hacer de dos maneras mediante MockitoAnnotations.openMocks(this) la otra es con la anotación @ExtendWith
+- @ExtennWith: Es una extensión de tipo clase que nos permite activar las anotaciones de @Mock e @InjectMocks para ellos pondreos @ExtendsWith (MockitoExtension.class)
+- @Captor: Es una anotación que nos permite definir AgumentCaptor 
+- @Mock: Es una anotiacion que no ahorra el escribir la inicialización del mock manual
+- @InjectMocks: Es una anotación que nos permite crear la instancia de un objeto y que agrege a ella los mock necesarios que hemos creado anteriormente. Importante no funciona con interfaces, demos de usarla con las implementaciones de estas
     ```java
+    @InjectMocks
+    private Add add;
+
+    @Mock
+    private ValidNumber validNumber
+
+    @BeforeAll
+    public void setUp(){
+        MockitoAnnotations.initMocks(this)
+    }
+
     @Test
     void addTest(){
-        when(validNumber.check(3)).theReturn(false);
+        add.add(3,2);
+        Mockito.verify(validNumber).check(3);
+
     }
     ```
-- Para simular las llamadas de excepciones usaremos throwWhen lo que nos permitira que cuando se ejecute una parte de nuestro código se lance la excepción expecificada para que posteriormente usando un assertThrow comprobemos que realmente se lanza y verificamos el test Unitario
-  - When (nb-clase.nb-metodo).thenThrow(nb-clase-excepion.class)
-- Verify es un método estatico que se encarga de validar y verificar si realmente se han llamado a los métodos que estamos simulando. En caso de no ser simulados las pruebas se quedan como estado fallido, importante cuando se quiera verificar un meotodo que es posible que tuviera mas de una ejecución, verify fallara, necesitamos la aplicación del segundo parámetro del método que es times…. La estructura de la llamada básica seria asi
-  - Verify (nb-mock).nb-metodo-mockeado(valor-parametro-enviado)
-- Mockito nos permite capturar los argumentos que recibe de parámetro mediante la clase ArgumentCaptor para posteriormente evaluarlo con los assert de Junit. Para ello inicializaremos la clase ArgumentCapto<nb-clase> captor = ArgumentCaptor.forClass(nb-clase.class), para posteriormente en el verify pasarle comoparámetro captor.capture, para obtener el valor usaremos captor.getValue(). Existe otra manera de generar ArgumentCaptor, gracias a la anotación @Captor.
-- Mock cuenta tambien con anotaciones como @Mock, @InjectMocks, @ExtendsWith… Son anotaciones que nos ayudan a ahorrar tiempo a la hora de escribir nuestro código de prueba. Estas anotaciones por defecto están deshabilitadas, para poder activarlas se puede hacer de dos maneras mediante MockitoAnnotations.openMocks(this) la otra es con la anotación @ExtendWith
-  - @Mock: Es una anotiacion que no ahorra el escribir la inicialización del mock manual
-  - @InjectMocks: Es una anotación que nos permite crear la instancia de un objeto y que agrege a ella los mock necesarios que hemos creado anteriormente. Importante no funciona con interfaces, demos de usarla con las implementaciones de estas
-    ```java
-            @InjectMocks
-            private Add add;
-            @Mock
-            private ValidNumber validNumber
+### Argument Matchers
 
-            @BeforeAll
-            public void setUp(){
-                MockitoAnnotations.initMocks(this)
-            }
+Los Argument Matchers son una característica de Mockito que permite hacer coincidir los argumentos de métodos simulados de manera flexible durante las pruebas unitarias. En lugar de especificar valores exactos, los Argument Matchers permiten definir condiciones que los argumentos deben cumplir, facilitando así la creación de pruebas más generalizadas y menos propensas a cambios específicos de datos.
 
-            @Test
-            void addTest(){
-                add.add(3,2);
-                Mockito.verify(validNumber).check(3);
+```java
+@Test
+void argumentMatcherTest(){
+    when(validNumber.check(anyInt())).theReturn(true);
+    assertTrue(validNumber.check(4));
+}
+```
 
-            }
-    ```
-  - @ExtennWith: Es una extensión de tipo clase que nos permite activar las anotaciones de @Mock e @InjectMocks para ellos pondreos @ExtendsWith (MockitoExtension.class)
-  - @Captor: Es una anotación que nos permite definir AgumentCaptor
-- Mockito no solo nos permite retornar valores fijos, sino que también puede retornarnos Answer que son funciones anónimas que nos permiten modificar valores de nuestro objecto a retornar de manera dinámica, como puden ser simular la generación de un ID de manera autoincremental, en caso de no quere aplicar la anwser podemos aplicar directamente el método  doAnwser, funcionando de la siguiente manera doAnswer(lambda) doAnwser(invocation ->{}).when(nb-clase).nb-metodo(valor-parametro)
-- Argument matcher se encarga de validar que los argumentos que pasamos a un mockito son los esperados, es decir que sean del mismo tipo y tengan el valor esperado, para ello usarmos
-  - Estatic 
-    - Mockito.argThat(arg -> propiedad lambda)
-    - ArgumentMarchers.argThat(arg -> propiedad lambda)
-  - Nomal argThat (arg -> propiedad lambda)
-  - Implementar clase anónima en la que podamos implementar nuestro método un mensaje de error personalizado y nuestro método matches, donde implementaremos la lógica de validación que queramos realizar
-- Mockito nos facilita la control de excepciones para los métodos que no retornan valores, para ello Mockito nos da el método doThrow(nb-clase.class), el único detalle que debemos de tener es que la invocación no es después de ejecutar el programa sino es antes. Para que posteriormente se pueda validar con assertThrow de Junit. doThrow(nb-clase.class).when(nb-clase) .nb-metodo(.nb-parametro)
-- Mockito nos permite controlar y comprobar que se han ejecutado excepciones usando when-thenTrhow
-    ```java
-    @Test
-    void addMockExceptionTest(){
-        when(validNumber.checkZero(0)).thenThrow(new AritmeticException("msg"));
-    }
-    ```
-- Mokito nos facilita el poder llamar de manera real el método que estamos simulando para ello usaremos doCallRealMethod().when(nb-class).nb-metodo(valor-parametro)
-    ```java
-    @Test
-    void addRelMethod(){
-        when(validNumber.check(3)).thenCallRealMethod();
-        assertEquals(true,validNumber.check(3));
-    }
-    ```
-- Mockito nos permite controlar de una manera más compleja usando una logica personalizada el valor de un metod que estamos simulando
-    ```java
-    @Test
-    void addDoubleToIntTest(){
-        Answer<Integer> answer = new Answer<Integer>(){
-            @Override
-            public Integer answer(InvocationOnMock invocationOnMock) throws Throwable{
-                return 7
-            }
-        };
+### Simulaciones Basicas
 
-        when (validNumber.dobleToInt(7.7)).thenAnswer(answer);
-        assertEquals(7, validNumber.dobleToInt(7.7));
-    }
+La funcionalidad más básica en Mockito es la capacidad de crear objetos simulados, conocidos como mocks, y definir comportamientos básicos para métodos específicos. Para lograr esto, utilizamos la estructura when-thenReturn.
+
+- when: Indica que estamos configurando una expectativa para una llamada de método en el mock.
+- nb-clase.nb-metodo(): Es la llamada al método específico en el objeto mock cuya respuesta queremos simular.
+- thenReturn(resultadoSimulado): Define el resultado que se devolverá cuando el método especificado sea llamado.
+
+Por ejemplo, si tenemos un mock de una clase Calculadora y queremos simular que el método sumar devuelva 5 cuando se le pasan los parámetros 2 y 3, escribiríamos:
+```java
+@Test
+void addCalculadoraTest(){
+    when(calculadora.sumar(2, 3)).thenReturn(5);
+    assertEquals(5, calculadora.sumar(2, 3));
+}
+```
+
+### Simulacion de excepciones
+
+Para simular llamadas que lanzan excepciones en nuestros tests, utilizamos el método thenThrow de Mockito. Esto nos permite especificar que, cuando se ejecute un método particular en nuestro código, se lanzará una excepción predefinida. Posteriormente, podemos usar assertThrows para verificar que la excepción realmente se lanza, asegurando así la correcta funcionalidad de nuestro test unitario.
+
+- when: Configura una expectativa para una llamada de método en el mock.
+- nb-clase.nb-metodo(): Es la llamada al método específico en el objeto mock que queremos que lance una excepción.
+- thenThrow(nb-clase-excepcion.class): Define la excepción que se lanzará cuando se llame al método especificado.
+
+```java
+@Test
+void addMockExceptionTest(){
+    when(validNumber.checkZero(0)).thenThrow(new AritmeticException("msg"));
+}
+```
+
+### Verificar llamada de un metodo
+
+El método verify en Mockito se utiliza para validar y comprobar si los métodos de un objeto simulado (mock) han sido llamados de la manera esperada durante la ejecución de un test. Este método es crucial para asegurar que la lógica de negocio de nuestro código interactúa correctamente con sus dependencias simuladas.
+
+Los principales usos de verify
+
+- Verificar la llamada de métodos: Asegura que un método específico en un mock ha sido llamado con ciertos parámetros. Esto es útil para confirmar que se han realizado las interacciones esperadas con el mock.
+    ```java
+    verify(mock).metodo(parametros);
     ```
-- Mockito nos permite verificar el orden de ejecución de los métodos que simulamos para ello usaremos el método inOrder el cual retorna un InOrder. 
-- Mockito nos permite comprobar el numero de invocaciones que tiene nuestro método mockeado, para ello usaremos verify donde le pasaremos como segundo argumento un times que indicaría el numero de veces que creemos/esperamos que se ejecute verify (nb-clase, times(num-veces)).nb-metodo(valor-parametro). Tambien posee otros métodos como
-  - atLest que indica que como mínimo se ejecuto 1 vez, pero se pudo ejecutar n veces
-  - atLestOnce que se ejecuto al menos una vez
-  - atMost que indica que como máximo se ejecuto n veces.atMostOnce indica que el máximo de ejecuciones se x.
-  - never indica que nunca se ha ejecutado el método
-  - verifyNoInteraction verifica que no ha tenido inteactuado con nuestro mock
+- Verificar el número de veces que se ha llamado un método: A través del parámetro times, se puede comprobar cuántas veces se ha llamado un método. Esto es útil cuando un método debe ser invocado un número específico de veces.
+    ```java
+    verify(mock, times(n)).metodo(parametros);
+    ```
+- Verificar que un método no se ha llamado: Usando verify con never(), se puede confirmar que un método no ha sido llamado en absoluto, lo cual es útil para asegurarse de que ciertas condiciones no desencadenen interacciones no deseadas.
+    ```java
+    verify(mock, never()).metodo(parametros);
+    ```
+- Verifica que al menos se ejecute como mínimo se ejecuto 1 vez, pero se pudo ejecutar n veces
+    ```java
+    verify(mock, atLest(2)).metodo(parametros);
+    ```
+- Verifica que se ejecuto al menos una vez
+    ```java
+    verify(mock, atLestOnce(1)).metodo(parametros);
+    ```
+- Verifica que se ejecuto como máximo  n veces
+    ```java
+    verify(mock, atMost(4)).metodo(parametros);
+    ```
+- Verifica que no ha tenido inteactuado con nuestro mock
+    ```java
+    verify(mock, verifyNoInteraction()).metodo(parametros);
+    ```
+
+### ArgumentCaptor
+
+Se utiliza para capturar los argumentos que se pasan a un método de un objeto simulado (mock) durante la ejecución de una prueba. Esto es especialmente útil cuando necesitas inspeccionar, verificar o hacer aserciones sobre los valores de los parámetros que se pasan a un método.
+
+```java
+@Test
+void testProcesarGuardaDatoProcesado() {
+    Repositorio repositorioMock = mock(Repositorio.class);
+    Servicio servicio = new Servicio(repositorioMock);
+
+    servicio.procesar("dato");
+
+    ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+    verify(repositorioMock).guardar(captor.capture());
+
+    String valorCapturado = captor.getValue();
+    assertEquals("dato_procesado", valorCapturado);
+}
+```
+
+### Asnwer
+
+Se utilizan para definir comportamientos personalizados cuando se invocan métodos en un objeto simulado (mock). Esto es útil cuando los comportamientos predefinidos de Mockito (como thenReturn y thenThrow) no son suficientes y necesitas una lógica más compleja que dependa de los parámetros de entrada u otros estados.
+
+```java
+@Test
+void addDoubleToIntTest(){
+    Answer<Integer> answer = new Answer<Integer>(){
+        @Override
+        public Integer answer(InvocationOnMock invocationOnMock) throws Throwable{
+            return 7
+        }
+    };
+
+    when (validNumber.dobleToInt(7.7)).thenAnswer(answer);
+    assertEquals(7, validNumber.dobleToInt(7.7));
+}
+```
 
 ## Spy
 
