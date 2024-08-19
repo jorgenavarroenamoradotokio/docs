@@ -14,8 +14,7 @@ Los contenedores son entornos aislados y ligeros que contienen todo lo necesario
 - Dockerfile: Es un archivo de texto con un conjunto de instrucciones para construir una imagen de Docker. Define cómo debe ser configurado el contenedor.
 - Docker Hub: Es un servicio de registro de imágenes públicas de Docker, donde los desarrolladores pueden compartir y descargar imágenes.
 
-# Ventajas
-
+Las ventajas de usar docker son:
 - Portabilidad: Los contenedores pueden ejecutarse en cualquier sistema operativo que tenga Docker instalado, lo que facilita mover aplicaciones entre entornos de desarrollo, prueba y producción.
 - Aislamiento: Cada contenedor funciona de manera aislada, lo que significa que no interfiere con otras aplicaciones en el mismo sistema.
 - Escalabilidad: Docker facilita la creación de aplicaciones escalables al permitir la implementación de múltiples contenedores en paralelo.
@@ -23,10 +22,7 @@ Los contenedores son entornos aislados y ligeros que contienen todo lo necesario
 
 # Arquitectura
 
-Docker está compuesta por varios componentes clave que trabajan juntos para permitir la creación, administración y ejecución de contenedores
-
-## Diagrama de la arquitectura
-
+Docker está compuesta por varios componentes clave que trabajan juntos para permitir la creación, administración y ejecución de contenedores, siguiendo la siguiente arquitectura:
 - Usuarios interactuando con Docker CLI o API.
 - Docker CLI/API comunicándose con Docker Daemon.
 - Docker Daemon gestionando contenedores, imágenes, volúmenes y redes.
@@ -46,12 +42,16 @@ El Docker Engine es el núcleo de Docker. Es el componente que permite la creaci
 
 Las imágenes son plantillas inmutables que contienen el código de la aplicación y todas las dependencias necesarias para ejecutarla. Las imágenes se construyen a partir de un archivo llamado Dockerfile, que contiene las instrucciones para crear la imagen.
 
-- Capas de Imagen: Las imágenes de Docker están compuestas por capas. Cada instrucción en el Dockerfile crea una nueva capa en la imagen. Esto permite la reutilización de capas entre imágenes, lo que hace que la creación y distribución de imágenes sea más eficiente.
+### Capas de Imagen 
+
+Las imágenes de Docker están compuestas por capas. Cada instrucción en el Dockerfile crea una nueva capa en la imagen. Esto permite la reutilización de capas entre imágenes, lo que hace que la creación y distribución de imágenes sea más eficiente.
   - FROM: sistema/herramienta principal que permite la ejecucion de la imagen (sistema operativo, libreia de lenguaje, etc)
   - WORKDIR: estable el directorio de trabajo
   - COPY: copia archivos desde el sistema de archivos del host a la imagen
   - RUN: ejecuta comandos dentro de la imagen para instalar las dependencias 
   - CMD: define el comando que se ejecutara cuando inicie el contenedor basado en en la imagen
+
+### Dockerfile
 
 - Dockerfile: Un archivo de texto con una serie de instrucciones que especifican cómo construir una imagen. Define la base de la imagen (por ejemplo, un sistema operativo), las dependencias, la configuración, y los comandos que deben ejecutarse dentro del contenedor.
 
@@ -63,6 +63,46 @@ RUN yum -y install httpd
 # Define el comando por defecto para ejecutar la aplicación
 CMD ["apachectl", "-DFOREGROUND"]
 ```
+
+#### Estructura
+
+Un Dockerfile está compuesto por una serie de instrucciones que Docker procesa secuencialmente para crear una imagen. Algunas de las instrucciones más comunes incluyen:
+
+- FROM: Define la imagen base a partir de la cual se construirá la nueva imagen. Esta es generalmente la primera línea del Dockerfile.
+```Ejemplo: FROM ubuntu:20.04```
+- RUN: Ejecuta un comando en la imagen durante la construcción de la misma. Es utilizado para instalar paquetes, configurar el entorno, etc.
+```Ejemplo: RUN apt-get update && apt-get install -y nginx```
+- COPY: Copia archivos o directorios desde el sistema de archivos del host al sistema de archivos del contenedor.
+```Ejemplo: COPY . /app```
+- ADD: Similar a COPY, pero con capacidades adicionales, como descomprimir archivos tar automáticamente.
+```Ejemplo: ADD app.tar.gz /app```
+- ENV: Establece variables de entorno dentro del contenedor.
+```Ejemplo: ENV ENVIRONMENT=production```
+- WORKDIR: Establece el directorio de trabajo dentro del contenedor. Cualquier comando subsiguiente se ejecutará desde este directorio.
+```Ejemplo: WORKDIR /app```
+- EXPOSE: Informa a Docker que el contenedor escucha en un puerto específico en tiempo de ejecución, aunque no abre realmente el puerto.
+```Ejemplo: EXPOSE 80```
+- LABEL: Añade metadatos a la imagen en forma de pares clave-valor.
+```Ejemplo: LABEL maintainer="admin@example.com"```
+- USER: Especifica el usuario bajo el cual se ejecutarán las instrucciones RUN, CMD, y ENTRYPOINT.
+```Ejemplo: USER nginx```
+- VOLUME: Crea un punto de montaje para compartir datos entre el contenedor y el host, o entre contenedores.
+```Ejemplo: VOLUME /data```
+- CMD: Especifica el comando predeterminado que se ejecutará cuando se inicie un contenedor basado en la imagen. Solo puede haber una instrucción CMD en un Dockerfile.
+```Ejemplo: CMD ["nginx", "-g", "daemon off;"]```
+- ARG: Define variables que se pueden pasar como argumentos de compilación al construir la imagen.
+```Ejemplo: ARG APP_VERSION=1.0```
+- ENTRYPOINT: Define el comando que siempre se ejecutará cuando el contenedor inicie. A diferencia de CMD, ENTRYPOINT no se puede sobrescribir fácilmente al iniciar el contenedor.
+```Ejemplo: ENTRYPOINT ["python", "app.py"]```
+
+### .Dockerignore
+
+Es un archivo de texto que se utiliza en Docker para especificar qué archivos y directorios deben ser excluidos cuando se construye una imagen a partir de un Dockerfile. Su funcionamiento es similar al de un archivo .gitignore en Git, donde se define una lista de patrones que indican qué contenidos deben ser ignorados durante la construcción de la imagen.
+
+Las principales ventajas son:
+- Mejora del rendimiento: Al excluir archivos innecesarios, reduces el tiempo de construcción de la imagen y el tamaño del contexto de construcción.
+- Seguridad: Evita que archivos sensibles, como claves privadas o archivos de configuración, sean incluidos accidentalmente en la imagen de Docker.
+- Optimización del almacenamiento: Al evitar que archivos innecesarios sean incluidos en la imagen, reduces el tamaño final de la misma.
 
 ### Tags
 
@@ -83,8 +123,6 @@ Son las etiquetas que nos indican la version de la imagen que nos vamos a descar
 - Exportar una imagen ```docker image export```
 - Eliminar imagenes no utilizadas ```docker image prune```
 - Crear una etiqueta para una imagen ``` docker image tag```
-
-### Dockerfile
 
 ## Contenedores de Docker
 
