@@ -2,7 +2,6 @@
   <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/feature/docker/logos/Docker-Logo.svg">
 </div>
 
-
 # Introducción
 
 Docker es una plataforma de software que permite crear, implementar y ejecutar aplicaciones en contenedores. 
@@ -65,12 +64,85 @@ RUN yum -y install httpd
 CMD ["apachectl", "-DFOREGROUND"]
 ```
 
+### Tags
+
+Son las etiquetas que nos indican la version de la imagen que nos vamos a descargar en nuestro docker
+- latest: nos indica que nos vamos a descargar e instalar la ultima version disponible de la imagen que deseamos.
+
+### Comandos
+
+- Construir una imagen a partir de un docker file ```docker image build```
+- Descargar una imagen desde un repositorio ```docker pull```
+- Listar imagenes instaladas en tu maquina local ```docker images```
+- Eliminar una imagen ```docker rmi``` o ```docker rm```
+- Asignar una etiqueta a una imagen ```docker tag```
+- Informacion detallada de una imagen ```docker image inspect```
+- Historial de capas de una imagen ```docker image history```
+- cargar una imagen desde un archivo guardado anteriormente ```docker image load```
+- Importar una imagen desde un archivo des sistemas de archivos ```docker image import```
+- Exportar una imagen ```docker image export```
+- Eliminar imagenes no utilizadas ```docker image prune```
+- Crear una etiqueta para una imagen ``` docker image tag```
+
+### Dockerfile
+
 ## Contenedores de Docker
 
 Un contenedor es una instancia en ejecución de una imagen de Docker. Representa una aplicación en ejecución con todo lo necesario para funcionar de manera aislada. Los contenedores son ligeros y comparten el núcleo del sistema operativo con otros contenedores, pero cada uno tiene su propio sistema de archivos, red y espacio de proceso.
 
 - Aislamiento: Los contenedores se ejecutan de manera aislada, lo que significa que no pueden interferir con otros contenedores en el sistema.
+- Ligereza: A diferencia de las máquinas virtuales, los contenedores no incluyen un sistema operativo completo. En su lugar, comparten el kernel del sistema operativo del host, lo que los hace más ligeros y rápidos de iniciar. Esto permite ejecutar muchos contenedores en un solo servidor sin un gran sobrecarga de recursos.
+- Portabilidad: Como los contenedores incluyen todo lo necesario para ejecutar una aplicación, pueden trasladarse entre diferentes entornos (como desarrollo, pruebas y producción) sin problemas. Si una aplicación funciona en un contenedor en tu máquina local, debería funcionar de la misma manera en la nube o en cualquier otro sistema con Docker instalado.
+- Ephemeralidad (carácter efímero): Los contenedores son generalmente efímeros, lo que significa que están diseñados para ser temporales. Una vez que un contenedor se detiene o se elimina, todo lo que está dentro del contenedor se pierde, a menos que se haya configurado un volumen para persistir los datos fuera del contenedor. Esto refuerza el concepto de que los contenedores deben ser reemplazables y que no deben contener datos importantes o configuraciones únicas.
+- Rápida creación y eliminación: Los contenedores se pueden crear, detener y eliminar rápidamente, lo que facilita la escalabilidad y la gestión de aplicaciones. Esto permite implementar rápidamente nuevas instancias de aplicaciones en diferentes entornos.
 - Persistencia: Aunque los contenedores son efímeros, los datos se pueden persistir utilizando volúmenes, que permiten almacenar datos fuera del contenedor y compartirlos entre contenedores.
+
+### Estructura
+
+- Sistema de archivos(Imagen): Cada contenedor tiene su propio sistema de archivos basado en la imagen desde la que se creó. Aunque los contenedores comparten el kernel del sistema operativo del host, tienen su propio espacio de archivos, lo que les permite estar aislados.
+- Volúmenes: Aunque los datos dentro de un contenedor se pierden cuando el contenedor se elimina, Docker permite montar volúmenes, que son directorios compartidos entre el host y el contenedor o entre varios contenedores. Esto permite la persistencia de datos y el intercambio de información entre contenedores.
+- Red: Docker proporciona varias opciones para configurar la red de un contenedor, permitiendo que los contenedores se comuniquen entre sí o con el mundo exterior. Los contenedores pueden tener su propia dirección IP y pueden estar conectados a redes definidas por el usuario.
+- Procesos: Dentro de un contenedor, los procesos funcionan de manera independiente de otros procesos en el host o en otros contenedores. Aunque un contenedor puede ejecutar varios procesos, en muchos casos se recomienda que cada contenedor ejecute un solo proceso (por ejemplo, un servicio o una aplicación específica).
+
+### Beneficios
+
+- Consistencia: Al empaquetar la aplicación y todas sus dependencias en un contenedor, se garantiza que funcionará de la misma manera en cualquier entorno, reduciendo los problemas de configuración.
+- Escalabilidad: Docker facilita la escalabilidad de aplicaciones, permitiendo crear y administrar múltiples instancias de contenedores rápidamente.
+- Eficiencia: Los contenedores son ligeros y consumen menos recursos que las máquinas virtuales, permitiendo un uso más eficiente del hardware.
+
+### Comparación con máquinas virtuales
+
+- Máquinas virtuales: Cada VM incluye un sistema operativo completo, lo que consume más recursos y lleva más tiempo iniciar. Además, cada VM necesita su propio hipervisor para gestionar los recursos.
+- Contenedores: Los contenedores comparten el mismo núcleo del sistema operativo, lo que los hace más ligeros y rápidos de iniciar. No necesitan un sistema operativo completo en cada instancia, lo que ahorra recursos.
+
+### Comandos
+
+- Crea y ejecutar un contendor ```docker run ```
+- crear un contenedor pero sin iniciar ```docker create nbContenedor```
+- Iniciar un contendor detenido ```docker start contenedor_id``` o ```docker container start contenedor_id```
+- Detener un contendor en ejecucion ```docker stop contenedor_id``` o ```docker container stop contenedor_id```
+- Reiniciar un contendor ```docker restart contenedor_id``` o ```docker container restart contenedor_id```
+- Forzar la detencion de un contenedor inmediatamente ```docker kill contenedor_id``` o ```docker container kill contenedor_id```
+- Pausar todos los procesos de un contenedor ```docker pause contenedor_id```
+- Reanidar todos los procesos pausados de un contenedor ```docker unpause contenedor_id```
+- Eliminar un contenedor ```docker rm contenedor_id```
+- Listar los contenedores en ejecución ```docker ps``` o ```docker ls```
+- Listar todos los contenedores (en ejecucion o detenidos) ```docker ps -a```
+- Ejecutar comando dentro de un contenedor ```docker exec -it contenedor_id comando```
+- Registros de log de un contenedor ```docker logs contenedor_id```
+- Informacion detallada de un contenedor ```docker inspect contenedor_id```
+- Procesos que se estan ejecutando dentro de un contenedor ```docker top contenedor_id```
+- Estadisticas asociadas al contenedor ```docker stats contenedor_id```
+- Ajuntar la consola del terminal al stdin, stdout y stderr ```docker attach contenedor_id```
+- Mostrar los puertos mapeados a un contenedor ```docker port contenedor_id```
+- Copar archivos o directorios entre contenedor y host ```docker cp contenedor_id:/path_in_container /path_in_host```
+- Renombrar un contenedor ```docker rename old_name new name```
+- Bloque hasta que el contenedor se detiene con codigo de salida ```docker wait contenedor_id```
+- Inspecciona los cambios en el sistema de archivos de un contenedor en comparacion con la imagen base ```docker diff contenedor_id```
+- Exportar el sistema de archivos de un contenedor a un archivo tar ```docker export contenedor_id > container.tar```
+- Eliminar todos los contenedores detenidos ```docker container prune```
+- Actualizar la configuración de recursos de un contenedor ```docker update --cpus 2 contenedor_id```
+
 
 ## Volúmenes de Docker (Docker Volumes)
 
