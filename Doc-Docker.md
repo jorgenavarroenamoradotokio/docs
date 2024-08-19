@@ -20,10 +20,10 @@
     - [Comparación con máquinas virtuales](#comparación-con-máquinas-virtuales)
     - [Comandos](#comandos-1)
   - [Volúmenes de Docker (Docker Volumes)](#volúmenes-de-docker-docker-volumes)
+    - [Tipos de volumenes](#tipos-de-volumenes)
   - [Red de Docker (Docker Networking)](#red-de-docker-docker-networking)
   - [Registro de Docker (Docker Registry)](#registro-de-docker-docker-registry)
   - [Orquestación (Docker Swarm y Kubernetes)](#orquestación-docker-swarm-y-kubernetes)
-
 
 # Introducción
 
@@ -78,15 +78,6 @@ Las imágenes de Docker están compuestas por capas. Cada instrucción en el Doc
 
 - Dockerfile: Un archivo de texto con una serie de instrucciones que especifican cómo construir una imagen. Define la base de la imagen (por ejemplo, un sistema operativo), las dependencias, la configuración, y los comandos que deben ejecutarse dentro del contenedor.
 
-```dockerfile
-# Selecciona una imagen base
-FROM centos:7
-# Ejecutar la imagen
-RUN yum -y install httpd
-# Define el comando por defecto para ejecutar la aplicación
-CMD ["apachectl", "-DFOREGROUND"]
-```
-
 #### Estructura
 
 Un Dockerfile está compuesto por una serie de instrucciones que Docker procesa secuencialmente para crear una imagen. Algunas de las instrucciones más comunes incluyen:
@@ -117,6 +108,15 @@ Un Dockerfile está compuesto por una serie de instrucciones que Docker procesa 
 ```Ejemplo: ARG APP_VERSION=1.0```
 - ENTRYPOINT: Define el comando que siempre se ejecutará cuando el contenedor inicie. A diferencia de CMD, ENTRYPOINT no se puede sobrescribir fácilmente al iniciar el contenedor.
 ```Ejemplo: ENTRYPOINT ["python", "app.py"]```
+
+```dockerfile
+# Selecciona una imagen base
+FROM centos:7
+# Ejecutar la imagen
+RUN yum -y install httpd
+# Define el comando por defecto para ejecutar la aplicación
+CMD ["apachectl", "-DFOREGROUND"]
+```
 
 ### .Dockerignore
 
@@ -204,20 +204,33 @@ Un contenedor es una instancia en ejecución de una imagen de Docker. Representa
 - Eliminar todos los contenedores detenidos ```docker container prune```
 - Actualizar la configuración de recursos de un contenedor ```docker update --cpus 2 contenedor_id```
 
-
 ## Volúmenes de Docker (Docker Volumes)
 
-Los volúmenes se utilizan para persistir datos generados y utilizados por contenedores. Se almacenan fuera del contenedor, en el sistema de archivos del host, lo que permite que los datos persistan incluso si el contenedor se elimina o se recrea.
+Es un mecanismo que permite a los contenedores almacenar datos de manera persistente y compartirlos con el host o con otros contenedores. A diferencia del sistema de archivos de un contenedor, que es efímero (es decir, se elimina cuando el contenedor se elimina), los volúmenes permiten que los datos sobrevivan incluso si el contenedor se detiene o se elimina.
 
-- Volúmenes Compartidos: Se pueden compartir entre múltiples contenedores, permitiendo que todos accedan a los mismos datos.
-- Montajes Bind: Permiten montar un directorio específico del host en un contenedor, dándole acceso directo al sistema de archivos del host.
+Las principales ventajas son:
+
+- Persistencia de datos: Los volúmenes permiten que los datos persistan más allá del ciclo de vida del contenedor, asegurando que la información no se pierda cuando el contenedor se detiene o se elimina.
+- Separación de datos y contenedores: Los volúmenes desacoplan el almacenamiento de datos del ciclo de vida del contenedor, lo que facilita la actualización o el reemplazo de contenedores sin afectar los datos.
+- Compatibilidad multiplataforma: Los volúmenes funcionan bien en diferentes sistemas operativos, mientras que el mapeo de directorios locales a contenedores puede tener problemas de compatibilidad, especialmente entre sistemas como Windows y Linux.
+- Facilidad de uso y rendimiento: Docker gestiona automáticamente los volúmenes, y su uso generalmente ofrece un mejor rendimiento que los mapeos directos de directorios del host.
+
+### Tipos de volumenes
+
+- Volúmenes gestionados por Docker: Docker crea y gestiona estos volúmenes en una ubicación específica del host, que suele estar en el directorio /var/lib/docker/volumes/. Estos volúmenes son ideales cuando no necesitas saber dónde se almacenan los datos en el host.
+- Volúmenes vinculados a directorios locales (bind mounts): En este caso, puedes especificar un directorio del host que se monta en el contenedor. Esto es útil si necesitas controlar exactamente dónde se almacenan los datos en el sistema de archivos del host.
+- Volúmenes temporales (tmpfs mounts): Estos volúmenes se almacenan en la memoria RAM y no persisten después de que el contenedor se detiene. Son útiles para datos temporales o cuando se necesita un acceso rápido a los datos sin almacenamiento persistente.
+
 
 ## Red de Docker (Docker Networking)
+
+Las redes en Docker son un componente clave que permite a los contenedores comunicarse entre sí, con el host y con el mundo exterior. Docker proporciona un sistema de redes flexible que permite a los usuarios crear y gestionar redes de contenedores, facilitando la interconexión de servicios dentro de un entorno de contenedores.
 
 Docker proporciona varias opciones de redes para que los contenedores se comuniquen entre sí y con el mundo exterior:
 
 - Bridge Network: Es la red predeterminada que Docker crea para los contenedores en un solo host. Permite la comunicación entre contenedores en el mismo host.
 - Host Network: En esta red, el contenedor comparte la pila de red del host, eliminando el aislamiento de red entre el contenedor y el host.
+- Sin conectividad: Al usar la red none, el contenedor no tiene ninguna configuración de red. Esto puede ser útil para contenedores que no necesitan conectividad externa, como aquellos que realizan tareas aisladas.
 - Overlay Network: Permite la comunicación entre contenedores que se ejecutan en diferentes hosts en un entorno de clúster.
 - Macvlan Network: Asigna una dirección MAC al contenedor, haciéndolo aparecer como un dispositivo físico en la red.
 
