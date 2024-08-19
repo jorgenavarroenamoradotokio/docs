@@ -2,6 +2,29 @@
   <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/feature/docker/logos/Docker-Logo.svg">
 </div>
 
+## Índice
+- [Introducción](#introducción)
+- [Conceptos claves](#conceptos-claves)
+- [Arquitectura](#arquitectura)
+  - [Docker Engine](#docker-engine)
+  - [Imágenes de Docker](#imágenes-de-docker)
+    - [Capas de Imagen](#capas-de-imagen)
+    - [Dockerfile](#dockerfile)
+      - [Estructura](#estructura)
+    - [.Dockerignore](#dockerignore)
+    - [Tags](#tags)
+    - [Comandos](#comandos)
+  - [Contenedores de Docker](#contenedores-de-docker)
+    - [Estructura](#estructura-1)
+    - [Beneficios](#beneficios)
+    - [Comparación con máquinas virtuales](#comparación-con-máquinas-virtuales)
+    - [Comandos](#comandos-1)
+  - [Volúmenes de Docker (Docker Volumes)](#volúmenes-de-docker-docker-volumes)
+  - [Red de Docker (Docker Networking)](#red-de-docker-docker-networking)
+  - [Registro de Docker (Docker Registry)](#registro-de-docker-docker-registry)
+  - [Orquestación (Docker Swarm y Kubernetes)](#orquestación-docker-swarm-y-kubernetes)
+
+
 # Introducción
 
 Docker es una plataforma de software que permite crear, implementar y ejecutar aplicaciones en contenedores. 
