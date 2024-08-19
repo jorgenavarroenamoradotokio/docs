@@ -22,6 +22,7 @@
   - [Volúmenes de Docker (Docker Volumes)](#volúmenes-de-docker-docker-volumes)
     - [Tipos de volumenes](#tipos-de-volumenes)
   - [Red de Docker (Docker Networking)](#red-de-docker-docker-networking)
+    - [Comandos](#comandos-2)
   - [Registro de Docker (Docker Registry)](#registro-de-docker-docker-registry)
   - [Orquestación (Docker Swarm y Kubernetes)](#orquestación-docker-swarm-y-kubernetes)
 
@@ -221,7 +222,6 @@ Las principales ventajas son:
 - Volúmenes vinculados a directorios locales (bind mounts): En este caso, puedes especificar un directorio del host que se monta en el contenedor. Esto es útil si necesitas controlar exactamente dónde se almacenan los datos en el sistema de archivos del host.
 - Volúmenes temporales (tmpfs mounts): Estos volúmenes se almacenan en la memoria RAM y no persisten después de que el contenedor se detiene. Son útiles para datos temporales o cuando se necesita un acceso rápido a los datos sin almacenamiento persistente.
 
-
 ## Red de Docker (Docker Networking)
 
 Las redes en Docker son un componente clave que permite a los contenedores comunicarse entre sí, con el host y con el mundo exterior. Docker proporciona un sistema de redes flexible que permite a los usuarios crear y gestionar redes de contenedores, facilitando la interconexión de servicios dentro de un entorno de contenedores.
@@ -233,6 +233,21 @@ Docker proporciona varias opciones de redes para que los contenedores se comuniq
 - Sin conectividad: Al usar la red none, el contenedor no tiene ninguna configuración de red. Esto puede ser útil para contenedores que no necesitan conectividad externa, como aquellos que realizan tareas aisladas.
 - Overlay Network: Permite la comunicación entre contenedores que se ejecutan en diferentes hosts en un entorno de clúster.
 - Macvlan Network: Asigna una dirección MAC al contenedor, haciéndolo aparecer como un dispositivo físico en la red.
+
+### Comandos
+
+- Crear una red ```docker network create <nombre_de_la_red>```
+- Crear una red especificando el driver ```docker network create -d <driver> <nombre_de_la_red>```
+- Crear una red con subred y un gateway ```docker network create --subnet <subred> --gateway <gateway> <nombre_de_la_red>```
+- Listar las redes ```docker network ls```
+- Inspeccionar una red ```docker network inspect <nombre_de_la_red>```
+- Conectar un contenedor a una red ```docker network connect <nombre_de_la_red> <nombre_del_contenedor>```
+- Desconectar un contenedor de una red ```docker network disconnect <nombre_de_la_red> <nombre_del_contenedor>```
+- Eliminar una red ```docker network rm <nombre_de_la_red>```
+- Eliminar todas las redes no utilizadas ```docker network prune```
+- Ejecutar un contenedor sin red ```docker run --network none <imagen>```
+- Ejecutar un contenedor en la red del host ```docker run --network host <imagen>```
+- Especufucar la red al ejecutar un contenedor ```docker run --network <nombre_de_la_red> <imagen>```
 
 ## Registro de Docker (Docker Registry)
 
