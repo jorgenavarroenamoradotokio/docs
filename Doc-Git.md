@@ -21,10 +21,13 @@
   - [Git remote](#git-remote)
   - [Git push](#git-push)
   - [Git pull](#git-pull)
-- [Comandos de reparación](#comandos-de-reparación)
+- [Comandos de utilidades](#comandos-de-utilidades)
   - [Git Clean](#git-clean)
+  - [Git revert](#git-revert)
+  - [Git reset](#git-reset)
   - [Git Checkout](#git-checkout)
   - [Git restore](#git-restore)
+  - [Git amend](#git-amend)
   - [Git cherry-pick](#git-cherry-pick)
   - [Git stash](#git-stash)
   - [Git reflog](#git-reflog)
@@ -182,12 +185,29 @@ El comando ```git push``` nos permite enviar los commits locales al repositorio 
 
 El comando ```git pull``` permite traernos los cambios del repositorio remoto al repositorio local, permitiendo actualizar el código local con los últimos cambios del proyecto.
 
-# Comandos de reparación
+# Comandos de utilidades
 
 ## Git Clean
 
 El comando ```git clean``` permite eliminar archivos no rastreados (untracked) y directorios del repositorio. Debemos de tener en cuenta que este comando es potencialmente destructivo porque puede eliminar archivos importantes que no se han añadido al control de versiones. Por esta razón, Git requiere que utilice se utilice la opciones -f(force) para eliminar solo ficheros.
 No solo podemos eliminar los documentos que no este rastreados sino podemos obtener el listado de documentos que son afectados si ejecutamos el comando ```git clean -f``` para ellos usaremos ```git clean -n```
+
+## Git revert
+
+El comando ````git revert <commit-id>``` permiter crear un nuevo commit que deshace los cambios de un commit anterior, la diferencia de otrts comandos como git reset o git rever es que no reescribe el histroial de commit ni altera el historial.
+- ```git revert <commit-id>``` commit que deseas revertir
+- ```git revert --no-edit``` realiza la accion de revertir el commit pero sin mostrar la consola para modificar el mensaje del commit
+- ```git revert --continue``` se aplica cuando se detecta que existen conflictos a la hora de revertir los cambios (estos se deben de resolver de manera manual)
+- ```git revert --abort``` se aplica cuando los conflictos detectados son demasiados y quieres cancelar el proceso
+- ```git revert --edit``` comportamiento por defecto, abre el editor para modificar el mensaje del commit
+- ```git revert -n``` o ```git revert --no-commit``` no crea le comit automaticamente, solo prepara el area de tabajo para que puedas revisar los cambios antes de hacer el commit
+
+## Git reset
+
+El comando ````git reset``` es uno de los comando mas poderosos de git, ya que se utiliza para deshacer cambios en tu repositorio y modificar el hoistorial de commits. Dependiendo de como se utilice, puede afectar a tu ara de trabajo, indice etc. La principal funcion es mover el punter de la rama actual a un commit anterior o a una referencia dependiendo de las opciones que utilices.
+- ```git reset --soft``` mueve el puntero , pero no cambia el inidce (area de trabajo) ni el directorio de tabajo. Los fichero modificados sisgune estando listos en el staging para ser comiteados
+- ```git reset --mixed``` (predeterminado) mueve el puntero, pero en esta ocasion si deshace los cambios en el indice, pero mantiene los cambios en el directorio de trabajo,
+- ```git reset --hard``` mueve el punteroy deshace los cambios del area y directorio de trabajo
 
 ## Git Checkout
 
@@ -198,12 +218,18 @@ Acutalmente este comando esta en desuso y se remplazo por ```git restore```
 
 El comando ```git restore``` fue introduccio en Git 2.2.3 para simplificar y externalizar algunas funciones que realizaba el comando ```git checkout```, el principal objetivo es retaurta el contenido de un archivo a partir de su ultimo commit. ```git restore``` no solo puede restaurar el contenido de un documento con el valor del ultimo commit sino que puede realizar las siguientes operativas tambien
 - Restaurar el contenido de un documento de un commit especifico
-- Restaurar el contenido de todos los documentos modificados ```git restore .```
-- Restaurar archivos del area de preparación (unstage) ```git resotre --staged <archivo>``` o ```git restore --staged .```
-- Restaurar un archivo desde un branch especifico ````git resotre --source=<nombre-de-rama> <archivo>```
-- Restaurar un archivo sin necesidad de confirmacion ```git restore --source=<commit-id> --force```
+- ```git restore .``` restaurar el contenido de todos los documentos modificados 
+- ```git resotre --staged <archivo>``` o ```git restore --staged .``` restaurar archivos del area de preparación (unstage) 
+- ```git resotre --source=<nombre-de-rama> <archivo>``` restaurar un archivo desde un branch especifico 
+- ```git restore --source=<commit-id> --force``` restaurar un archivo sin necesidad de confirmacion 
 
 ## Git amend
+
+El comando ```git commit --amend```  (comúnmente referido como ```git amend```) se utiliza para modificar el ultimo commit en tu rama. Permite realizar cambios, ya sea para modificar el mensaje, agregar archivos que olvidaste añadir o incluso corregir cambios que podrían no haber sido correctos. 
+- ```git commit --amend``` nos permite modificar el mensaje del ultimo commit. Esto directamente abrira el editor de texto configurado en tu Git (Vim o nano)
+- ```git commit --amend``` tras agregar documentos (````git add```) agregar estos documentos al ultimo commit registrado y te permitira editar el mensaje, en caso de no actualizarlo se quedara el que estaba
+- ```git commit --amend --no-edit``` agregara documentos y omitira el paso de modificar el mensaje del commit
+- ```git commit --amend --reset-author``` permite modificar el autor del ultimo commit utilizando el usuario que tienes configurado en tu git
 
 ## Git cherry-pick
 
@@ -211,7 +237,6 @@ El comando ```Git cherry-pick <commit-id>``` nos permite aplicar commits de otra
 Al ejecutar el comando no se encuentran conflictos, se realiza una integracion simple y exitosa.
 En caso de encontrase conflictos, se deben de resolver manualmente, agregarlos (```git add```) y posteriormente ejecutar ```git cherry-pick --continue```, pero en caso de querer abortar este proceso usaremos
 ```git cherry-pick --abort```
-
 
 ## Git stash
 
