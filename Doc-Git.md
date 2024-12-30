@@ -22,6 +22,14 @@
   - [Git push](#git-push)
   - [Git pull](#git-pull)
 - [Comandos de reparación](#comandos-de-reparación)
+  - [Git Clean](#git-clean)
+  - [Git Checkout](#git-checkout)
+  - [Git restore](#git-restore)
+  - [Git cherry-pick](#git-cherry-pick)
+  - [Git stash](#git-stash)
+  - [Git reflog](#git-reflog)
+- [Comandos de Ramas y Merge](#comandos-de-ramas-y-merge)
+- [Comandos de comparación](#comandos-de-comparación)
 
 # Intoduccion
 
@@ -119,7 +127,7 @@ Almacena archivos de información adicional sobre el repositorio. Aquí se encue
 
 ## Git add
 
-El comando ```git clone <URL_del_repositorio>``` agrega archivos al área de preparación (staging area), es decir, marca los archivos que quieres incluir en el próximo commit. Se puede agregar un solo archivo o todos los archivos modificados.
+El comando ```git clone <URL-del-repositorio>``` agrega archivos al área de preparación (staging area), es decir, marca los archivos que quieres incluir en el próximo commit. Se puede agregar un solo archivo o todos los archivos modificados.
 
 ```
 git add nombre_del_archivo    # Para un archivo específico
@@ -156,7 +164,7 @@ git log
 
 ## Git clone
 
-El comando ```git clone <URL_del_repositorio>``` permite copiar un repositorio existente, como uno que esté en GitHub o GitLab, a tu equipo local. Esto es especialmente útil para trabajar en proyectos colaborativos.
+El comando ```git clone <URL-del-repositorio>``` permite copiar un repositorio existente, como uno que esté en GitHub o GitLab, a tu equipo local. Esto es especialmente útil para trabajar en proyectos colaborativos.
 
 ## Git remote
 
@@ -172,11 +180,84 @@ El comando ```git push``` nos permite enviar los commits locales al repositorio 
 
 ## Git pull
 
-El comando ```git pull`` permite traernos los cambios del repositorio remoto al repositorio local, permitiendo actualizar el código local con los últimos cambios del proyecto.
-
+El comando ```git pull``` permite traernos los cambios del repositorio remoto al repositorio local, permitiendo actualizar el código local con los últimos cambios del proyecto.
 
 # Comandos de reparación
 
+## Git Clean
+
+El comando ```git clean``` permite eliminar archivos no rastreados (untracked) y directorios del repositorio. Debemos de tener en cuenta que este comando es potencialmente destructivo porque puede eliminar archivos importantes que no se han añadido al control de versiones. Por esta razón, Git requiere que utilice se utilice la opciones -f(force) para eliminar solo ficheros.
+No solo podemos eliminar los documentos que no este rastreados sino podemos obtener el listado de documentos que son afectados si ejecutamos el comando ```git clean -f``` para ellos usaremos ```git clean -n```
+
+## Git Checkout
+
+El comando ```git checkout <commit-id> -- <archivo-o-directorio>``` permite restaurar el contenido de un archivo o directorios desde la ultima confirmación (commit) o desde un commit anterior.
+Acutalmente este comando esta en desuso y se remplazo por ```git restore```
+
+## Git restore
+
+El comando ```git restore``` fue introduccio en Git 2.2.3 para simplificar y externalizar algunas funciones que realizaba el comando ```git checkout```, el principal objetivo es retaurta el contenido de un archivo a partir de su ultimo commit. ```git restore``` no solo puede restaurar el contenido de un documento con el valor del ultimo commit sino que puede realizar las siguientes operativas tambien
+- Restaurar el contenido de un documento de un commit especifico
+- Restaurar el contenido de todos los documentos modificados ```git restore .```
+- Restaurar archivos del area de preparación (unstage) ```git resotre --staged <archivo>``` o ```git restore --staged .```
+- Restaurar un archivo desde un branch especifico ````git resotre --source=<nombre-de-rama> <archivo>```
+- Restaurar un archivo sin necesidad de confirmacion ```git restore --source=<commit-id> --force```
+
+## Git amend
+
+## Git cherry-pick
+
+El comando ```Git cherry-pick <commit-id>``` nos permite aplicar commits de otras ramas en nuestra rama de trabajo, esto es util si solo necesitamos ciertos cambios de una rama y no queremos hacer un merge completo.
+Al ejecutar el comando no se encuentran conflictos, se realiza una integracion simple y exitosa.
+En caso de encontrase conflictos, se deben de resolver manualmente, agregarlos (```git add```) y posteriormente ejecutar ```git cherry-pick --continue```, pero en caso de querer abortar este proceso usaremos
+```git cherry-pick --abort```
+
+
+## Git stash
+
+El comando ````git stash``` es una herramienta muy útil en Git que no spermite guardar temporalmente cambios no confirmados en tu área de trabajo (tanto en el area de preparación  como en el directorio de trabajo)
+Existen dos formas de guardar la informacion en el stash
+- ```git stash``` sin parametros almacena la informacion en el directorio de trabajo y en el area de preparacion
+- ```git stash -k``` o ```git stash --keep-index``` se almacena la informacion solamente en el directorio de trabajo
+```git stash save "mensaje descriptivo"``` permite  agregar mensajes para poder localizarlos mas facilmente
+```git stash list``` para listar todos los stash almacenados
+```git stash show -p sthas@{n}``` para obtener la informacion detallada de un stash
+```git stash apply stash@{n}``` para recuperar los cambios de un stash
+```git stash pop``` para confirmar que se van a implementar esos cambios guardados y eliminarlo postermiormente de los stash almacenados
+```git stash drop stash@{0}``` para eliminar un stash
+```git stash clear``` para eliminar todos los stash almacenados
+```git stash -u o git stash --include-untracked``` crea un stash con todos los documentos modificados y todos los documentos/directorios no versionados (untracked)
+```git stash branch <nombre-de-rama>``` crea una nueva rama a partir del commit actual y aplica el stash allí.
+
+## Git reflog
+
+El comando ```git reflog``` muestra un registro de los cambios mas recientes en tu referencia HEAD (y otrras referencias). 
+En este registro podemos obtener:
+-  informacion de los cambios en el puntero HEAD
+-  recuperacion de commits perdidos, si se ha realizado algun git reset --hard o cualquier accion que borre referencias a commits
+-  cambios en las ramas, se se han realizado operaciones de merge, rebase, o checkout de ramas
+-  rastrear referencias de ramas, si una referencia de rama se ha movido se podra ver donde cuando y como ocurrió.
+
+Podemos personalizar la salida que nos muestra este comando, por ejemplo limitando el numero de registros mostrados por pantalla o buscando las acciones realizadas sobre una fecha
+```git reflog -n 5``` o ```git reflog --date=relative```
+
+Ejecucion del comando
+```bash
+$ git reflog
+e19c7a1 HEAD@{0}: commit: Agregar funcionalidad de autenticación
+b7d8f32 HEAD@{1}: commit: Corregir bug en el procesamiento de datos
+7c2e9b3 HEAD@{2}: commit: Refactorizar lógica de la API
+f32b111 HEAD@{3}: checkout: moving from feature-branch to master
+c1d2e44 HEAD@{4}: commit: Mejorar validación de entradas
+a34d5f2 HEAD@{5}: commit: Agregar prueba unitaria para validación
+2b5a1c6 HEAD@{6}: reset: moving to HEAD^
+8a22d7f HEAD@{7}: commit: Implementar nueva función de cálculo
+5c8b40d HEAD@{8}: rebase -i (finish): rebase a7b6d88..8a22d7f
+5c8b40d HEAD@{9}: rebase -i (start): rebase de master
+3e4d9a1 HEAD@{10}: checkout: moving from master to feature-branch
+b7d8f32 HEAD@{11}: commit: Corregir bug en el procesamiento de datos
+d82e4a9 HEAD@{12}: commit: Agregar funcionalidad de autenticación
+```
 # Comandos de Ramas y Merge
 
 # Comandos de comparación
