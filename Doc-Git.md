@@ -288,7 +288,6 @@ Esto abrirá una interfaz de texto que te permitirá editar los últimos 3 commi
   - edit: Modificar el commit.
   - squash: Combinar commits.
   - drop: Eliminar un commit.
-- asd
 - ```git rebase --onto <nueva-base> <id-commit-antiguo> <rama>``` te permite mover un conjunto de commits de una rama a otra, especificando un rango de commits más complejo.
 
 ## Git stash
