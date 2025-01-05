@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/feature/maven/logos/Apache_Maven_logo.png">
+  <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/feature/maven/logos/Maven-logo.svg">
 </div>
 
 ## Índice
