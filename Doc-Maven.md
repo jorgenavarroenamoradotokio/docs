@@ -18,11 +18,6 @@
     - [Mediante gestora de paquetes](#mediante-gestora-de-paquetes)
     - [En entornos de docker](#en-entornos-de-docker)
     - [Configuracion de multiples versiones Maven (versiones paralelas)](#configuracion-de-multiples-versiones-maven-versiones-paralelas)
-- [Configuración de settings.xml](#configuración-de-settingsxml)
-  - [Ubicación predeterminada](#ubicación-predeterminada)
-  - [Modificación de la ruta de Maven (repositorio local o configuración)](#modificación-de-la-ruta-de-maven-repositorio-local-o-configuración)
-  - [Ejecutar Maven desde un proxy](#ejecutar-maven-desde-un-proxy)
-  - [Modificar repositorio central](#modificar-repositorio-central)
 - [Arquitectura y Ciclo de vida](#arquitectura-y-ciclo-de-vida)
   - [Arquitectura](#arquitectura)
   - [Ciclo de vida](#ciclo-de-vida)
@@ -65,16 +60,32 @@
     - [Dependencias Opcionales](#dependencias-opcionales)
     - [Dependencias Excluidas](#dependencias-excluidas)
   - [Estrategias de versionado semántico en dependencias](#estrategias-de-versionado-semántico-en-dependencias)
+- [Carpeta target](#carpeta-target)
+- [Configuración de settings.xml](#configuración-de-settingsxml)
+  - [Tipos de configuracion](#tipos-de-configuracion)
+    - [Combinación de configuraciones globales y locales](#combinación-de-configuraciones-globales-y-locales)
+    - [Uso de perfiles](#uso-de-perfiles)
+  - [Ubicación predeterminada](#ubicación-predeterminada)
+  - [Modificación de la ruta de Maven (repositorio local o configuración)](#modificación-de-la-ruta-de-maven-repositorio-local-o-configuración)
+  - [Ejecutar Maven desde un proxy](#ejecutar-maven-desde-un-proxy)
+  - [Modificar repositorio central](#modificar-repositorio-central)
 - [Documentacion y Reportes](#documentacion-y-reportes)
   - [JavaDoc](#javadoc)
-  - [Cobertura de nuestro sitio web](#cobertura-de-nuestro-sitio-web)
+  - [Informes de Cobertura de Pruebas](#informes-de-cobertura-de-pruebas)
   - [Informes personalizados](#informes-personalizados)
   - [Publicar documentacion de mi sitio](#publicar-documentacion-de-mi-sitio)
+  - [FindBugs/PMD](#findbugspmd)
+    - [FindBugs en Maven](#findbugs-en-maven)
+    - [PMD](#pmd)
+    - [Integración de FindBugs y PMD en un Solo Reporte](#integración-de-findbugs-y-pmd-en-un-solo-reporte)
 - [Diagnóstico y Resolución de Problemas en Maven](#diagnóstico-y-resolución-de-problemas-en-maven)
   - [Estrategias depuracion](#estrategias-depuracion)
     - [Uso de -X (modo debug)](#uso-de--x-modo-debug)
     - [Análisis de logs generados por Maven](#análisis-de-logs-generados-por-maven)
   - [Resolución de Dependencias Faltantes o Corruptas](#resolución-de-dependencias-faltantes-o-corruptas)
+- [Fichero mvnw (mvnw.cmd)](#fichero-mvnw-mvnwcmd)
+  - [Cómo Funciona el Maven Wrapper](#cómo-funciona-el-maven-wrapper)
+- [Comandos maven](#comandos-maven)
   
 
 # Introducción
@@ -196,75 +207,6 @@ alias mvn3.8="export M2_HOME=~/tools/maven/apache-maven-3.8.6 && export PATH=$M2
 - Uso de SDKMAN para gestionar versiones: SDKMAN automatiza el cambio de versiones:
 ```bash
 sdk use maven <versión>
-```
-
-# Configuración de settings.xml
-Una de las características clave de Maven es su capacidad para gestionar dependencias y almacenar artefactos en un repositorio local. 
-De forma predeterminada, Maven utiliza una ubicación específica en tu sistema para almacenar estas dependencias y configuraciones. Sin embargo, en ocasiones, 
-puede ser necesario modificar esta ubicación para adaptarse a las necesidades de un entorno de desarrollo específico, ya sea por razones de rendimiento, espacio en disco, o preferencias organizativas.
-
-Las propiedades que puedes modificar son las siguientes
-- LocalRepository: Indica el path donde se almacenarán todos los repositorios y librerías que necesita nuestros proyectos para funcionar
-- Offline: Indica si Maven debe de operar en modo fuera de línea, lo que permitirá si debe descargar actualizaciones o dependencias si no están disponibles
-- Proxies: Se emplea para indicar la información de los servidores proxy
-- Mirror: Se emplea para descagra dependencias de un repositorio espejo, esto quiere decir que evita descargar dependencias del repositorio central de Maven y lo obtiene desde otro como puede ser nexus.
-- Repositories: Permite configurar los tipos de repositorios relases o snapshots
-- PluginRepositories: Almacena bibliotecas de complementos y archivos asociados
-- Server: Es empelado para almacenar usuarios, contraseñas, llaves privadas, etc
-
-## Ubicación predeterminada 
-La carpeta de Maven contiene los archivos que Maven usa para gestionar las dependencias y la configuración. Por defecto, estas son las ubicaciones en distintos sistemas operativos:
-- En sistemas operativos basados en UNIX (Linux/macOS):
-    - Repositorio local: El repositorio local, donde Maven almacena las dependencias, se encuentra en: ```~/.m2/repository```
-    - Archivo de configuración: El archivo de configuración settings.xml está en:```~/.m2/settings.xml```
-- En sistemas operativos Windows:
-    - Repositorio local: La ubicación predeterminada del repositorio local es: ```C:\Users\<nombre_de_usuario>\.m2\repository```
-    - Archivo de configuración: El archivo settings.xml se encuentra en: ```C:\Users\<nombre_de_usuario>\.m2\settings.xml```
-
-## Modificación de la ruta de Maven (repositorio local o configuración)
-Para ello debermos de buscar primero la carpeta .m2 y crear en ella el fichero settings.xml en el definiremos el path donde querremos que se almacenen los artefactos para los proyectos.
-En caso de no estar en .m2 el documento settings.xml puede estar en la carpeta conf de la carpeta de instalación de Maven
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                              http://maven.apache.org/xsd/settings-1.0.xsd">
-    <localRepository>/ruta/a/tu/nueva/carpeta</localRepository>
-</settings>
-```
-
-## Ejecutar Maven desde un proxy
-Cuando necesites acceder a recursos en línea a través de un servidor proxy (por ejemplo, cuando trabajes en una red corporativa o detrás de un firewall que requiera un proxy). 
-Simplemente añade la sección <proxies> con la configuración adecuada para tu entorno.
-
-```xml
-<proxies>
-    <proxy>
-        <id>my-proxy</id>
-        <active>true</active>
-        <protocol>http</protocol>
-        <host>proxy.example.com</host>
-        <port>8080</port>
-        <username>proxyuser</username>
-        <password>somepassword</password>
-        <nonProxyHosts>www.google.com|*.example.com</nonProxyHosts>
-    </proxy>
-</proxies>
-```
-
-## Modificar repositorio central 
-Cuando quieras que Maven acceda a repositorios específicos para obtener dependencias, plugins o artefactos. Esto es especialmente útil cuando trabajas con repositorios 
-internos de tu organización o repositorios personalizados, además del repositorio central predeterminado de Maven (Maven Central).
-
-```xml
-<repositories>
-  <repository>
-    <id>central</id>
-    <url>https://repo.maven.apache.org/maven2</url>
-  </repository>
-</repositories>
 ```
 
 # Arquitectura y Ciclo de vida
@@ -1005,34 +947,259 @@ Ejemplo de uso de versiones semánticas:
 - Una actualización PATCH debería ser solo correcciones de errores sin modificar la funcionalidad.
 Para mantener un control adecuado de las versiones en las dependencias, es importante seguir las reglas del versionado semántico. El uso adecuado de las versiones ayuda a reducir el riesgo de introducir incompatibilidades entre las dependencias.
 
+# Carpeta target
+La carpeta target es un directorio comúnmente utilizado en proyectos de programación, especialmente en aquellos que emplean herramientas de construcción como Maven, Gradle, o entornos de desarrollo como Spring Boot en Java, entre otros. Este directorio es generado automáticamente durante el proceso de construcción (compilación) del proyecto y tiene un propósito fundamental en cuanto a la organización y almacenamiento de los artefactos generados durante dicho proceso.
+tiene la siguiente estructura
+```perl
+target/
+    ├── classes/          # Archivos de clases compiladas (.class)
+    ├── test-classes/     # Clases de pruebas compiladas
+    ├── my-project-1.0-SNAPSHOT.jar  # Artefacto final empaquetado
+    ├── maven-status/     # Estado de la construcción (Maven)
+    ├── generated-sources/ # Archivos generados automáticamente
+    └── logs/             # Archivos de log generados durante la construcción
+```
+
+# Configuración de settings.xml
+Una de las características clave de Maven es su capacidad para gestionar dependencias y almacenar artefactos en un repositorio local. 
+De forma predeterminada, Maven utiliza una ubicación específica en tu sistema para almacenar estas dependencias y configuraciones. Sin embargo, en ocasiones, 
+puede ser necesario modificar esta ubicación para adaptarse a las necesidades de un entorno de desarrollo específico, ya sea por razones de rendimiento, espacio en disco, o preferencias organizativas.
+
+Las propiedades que puedes modificar son las siguientes
+- LocalRepository: Indica el path donde se almacenarán todos los repositorios y librerías que necesita nuestros proyectos para funcionar
+- Offline: Indica si Maven debe de operar en modo fuera de línea, lo que permitirá si debe descargar actualizaciones o dependencias si no están disponibles
+- Proxies: Se emplea para indicar la información de los servidores proxy
+- Mirror: Se emplea para descagra dependencias de un repositorio espejo, esto quiere decir que evita descargar dependencias del repositorio central de Maven y lo obtiene desde otro como puede ser nexus.
+- Repositories: Permite configurar los tipos de repositorios relases o snapshots
+- PluginRepositories: Almacena bibliotecas de complementos y archivos asociados
+- Server: Es empelado para almacenar usuarios, contraseñas, llaves privadas, etc
+
+## Tipos de configuracion
+En Maven, la configuración global y local se refiere a las diferentes ubicaciones donde puedes configurar los parámetros y propiedades que afectarán a tu proyecto. Maven tiene dos tipos principales de configuración:
+
+- Configuración global: Se encuentra en el archivo settings.xml global de Maven. Este archivo se encuentra en la carpeta conf del directorio de instalación de Maven (por ejemplo, C:\Program Files\Apache\Maven\conf\settings.xml en Windows) y afecta a todos los proyectos en la máquina.
+- Configuración local: Esta se encuentra en el archivo settings.xml ubicado en el directorio .m2 de tu usuario (por ejemplo, C:\Users\<tu_usuario>\.m2\settings.xml en Windows) y es específico para ese usuario, pudiendo sobrescribir la configuración global.
+
+### Combinación de configuraciones globales y locales
+Configuración global: Si una propiedad no está definida en la configuración local, Maven la tomará de la configuración global.
+Configuración local: Si una propiedad está definida tanto en la configuración global como en la local, la configuración local tiene prioridad.
+
+### Uso de perfiles
+Puedes definir perfiles tanto a nivel global como local. Los perfiles te permiten configurar diferentes comportamientos según el entorno.
+- Perfil global: Se puede activar usando el comando mvn -P <nombre_del_perfil>.
+- Perfil local: Se configura en el archivo local settings.xml, y se activa automáticamente si está configurado como predeterminado.
+
+## Ubicación predeterminada 
+La carpeta de Maven contiene los archivos que Maven usa para gestionar las dependencias y la configuración. Por defecto, estas son las ubicaciones en distintos sistemas operativos:
+- En sistemas operativos basados en UNIX (Linux/macOS):
+    - Repositorio local: El repositorio local, donde Maven almacena las dependencias, se encuentra en: ```~/.m2/repository```
+    - Archivo de configuración: El archivo de configuración settings.xml está en:```~/.m2/settings.xml```
+- En sistemas operativos Windows:
+    - Repositorio local: La ubicación predeterminada del repositorio local es: ```C:\Users\<nombre_de_usuario>\.m2\repository```
+    - Archivo de configuración: El archivo settings.xml se encuentra en: ```C:\Users\<nombre_de_usuario>\.m2\settings.xml```
+
+## Modificación de la ruta de Maven (repositorio local o configuración)
+Para ello debermos de buscar primero la carpeta .m2 y crear en ella el fichero settings.xml en el definiremos el path donde querremos que se almacenen los artefactos para los proyectos.
+En caso de no estar en .m2 el documento settings.xml puede estar en la carpeta conf de la carpeta de instalación de Maven
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                              http://maven.apache.org/xsd/settings-1.0.xsd">
+    <localRepository>/ruta/a/tu/nueva/carpeta</localRepository>
+</settings>
+```
+
+## Ejecutar Maven desde un proxy
+Cuando necesites acceder a recursos en línea a través de un servidor proxy (por ejemplo, cuando trabajes en una red corporativa o detrás de un firewall que requiera un proxy). 
+Simplemente añade la sección <proxies> con la configuración adecuada para tu entorno.
+
+```xml
+<proxies>
+    <proxy>
+        <id>my-proxy</id>
+        <active>true</active>
+        <protocol>http</protocol>
+        <host>proxy.example.com</host>
+        <port>8080</port>
+        <username>proxyuser</username>
+        <password>somepassword</password>
+        <nonProxyHosts>www.google.com|*.example.com</nonProxyHosts>
+    </proxy>
+</proxies>
+```
+
+## Modificar repositorio central 
+Cuando quieras que Maven acceda a repositorios específicos para obtener dependencias, plugins o artefactos. Esto es especialmente útil cuando trabajas con repositorios 
+internos de tu organización o repositorios personalizados, además del repositorio central predeterminado de Maven (Maven Central).
+
+```xml
+<repositories>
+  <repository>
+    <id>central</id>
+    <url>https://repo.maven.apache.org/maven2</url>
+  </repository>
+</repositories>
+```
+
 # Documentacion y Reportes
 Los informes y la documentación generada por Maven tienen varios propósitos importantes en el desarrollo de software, para poder generarlo usaremos el plugin mvn site:
 - Comunicación y comprensión del proyecto:
-- Documentación del código fuente: Maven puede generar documentación automáticamente a partir del código fuente, como Javadoc para proyectos Java. Esta documentación proporciona una guía clara sobre cómo utilizar las clases y métodos del código.
-- Informes de dependencias: Los informes de dependencias, como el árbol de dependencias, ayudan a entender la estructura del proyecto, las relaciones entre las distintas partes y las dependencias transitivas.
+  - Documentación del código fuente: Maven puede generar documentación automáticamente a partir del código fuente, como Javadoc para proyectos Java. Esta documentación proporciona una guía clara sobre cómo utilizar las clases y métodos del código.
+  - Informes de dependencias: Los informes de dependencias, como el árbol de dependencias, ayudan a entender la estructura del proyecto, las relaciones entre las distintas partes y las dependencias transitivas.
 - Mantenimiento y gestión del proyecto:
-- Control de versiones y auditoría: Los informes generados pueden facilitar la gestión de versiones, permitiendo identificar fácilmente qué versiones de las dependencias están siendo utilizadas en el proyecto y si existen posibles conflictos.
-- Detección de dependencias obsoletas o no utilizadas: Los informes pueden ayudar a identificar dependencias que ya no se usan o que han quedado obsoletas, permitiendo su eliminación para reducir la complejidad del proyecto.
+  - Control de versiones y auditoría: Los informes generados pueden facilitar la gestión de versiones, permitiendo identificar fácilmente qué versiones de las dependencias están siendo utilizadas en el proyecto y si existen posibles conflictos.
+  - Detección de dependencias obsoletas o no utilizadas: Los informes pueden ayudar a identificar dependencias que ya no se usan o que han quedado obsoletas, permitiendo su eliminación para reducir la complejidad del proyecto.
 - Automatización de tareas y revisión de calidad:
-- Análisis estático del código: Algunos informes pueden incluir análisis estático del código, como la detección de errores o el cumplimiento de estándares de codificación.
-- Cobertura de pruebas: Maven puede generar informes sobre la cobertura de pruebas, indicando qué partes del código están siendo probadas y en qué medida. Esto es crucial para evaluar la calidad del código y las áreas que necesitan más pruebas.
+  - Análisis estático del código: Algunos informes pueden incluir análisis estático del código, como la detección de errores o el cumplimiento de estándares de codificación.
+  - Cobertura de pruebas: Maven puede generar informes sobre la cobertura de pruebas, indicando qué partes del código están siendo probadas y en qué medida. Esto es crucial para evaluar la calidad del código y las áreas que necesitan más pruebas.
 - Facilitar la integración y entrega continua
-- Documentación para desarrolladores y usuarios: La documentación generada puede servir como una guía para desarrolladores que se unen al proyecto o para usuarios que necesitan comprender cómo utilizar una API o aplicación.
-- Informes de construcción: En un entorno de integración continua, los informes generados por Maven proporcionan información detallada sobre el proceso de construcción, errores, pruebas y otros aspectos relevantes para el equipo de desarrollo.
+  - Documentación para desarrolladores y usuarios: La documentación generada puede servir como una guía para desarrolladores que se unen al proyecto o para usuarios que necesitan comprender cómo utilizar una API o aplicación.
+  - Informes de construcción: En un entorno de integración continua, los informes generados por Maven proporcionan información detallada sobre el proceso de construcción, errores, pruebas y otros aspectos relevantes para el equipo de desarrollo.
 
 ## JavaDoc
-Maven no solo es capaz de generar informes de como esta construida una aplicación y generar un informe o un sitio web con toda esa información sino que también es capaz 
-de generar el javaDoc que posee la aplicación, para ello debemos de implementar el plugin javadoc (como report) en nuestro pom, para ejecutarlo deberemos ejecutar el comando/goal mvn site
-Otro mecanismo que tiene Maven es mediante el uso del plugin javadoc y ejecutando el comando mvn javadoc:javadoc
+Maven no solo genera informes sobre la estructura del proyecto, sino que también puede generar el JavaDoc correspondiente al código fuente. Para ello, se debe configurar el plugin javadoc como un reporte en el archivo pom.xml. Luego, para ejecutar el proceso y generar la documentación, se utiliza el siguiente comando:
+```bash
+mvn site
+mvn javadoc:javadoc
+```
 
-## Cobertura de nuestro sitio web
-Para poder contar con ello deberemos de incluir el plugin Jacoco visto con aterioridad, pero configurándolo de esta manera
+## Informes de Cobertura de Pruebas
+Para generar informes de cobertura de pruebas, se puede integrar el plugin JaCoCo en el pom.xml. Este plugin analiza la cobertura de pruebas en el código, proporcionando métricas detalladas sobre qué tan exhaustivas son las pruebas. A continuación se muestra un ejemplo de configuración básica para JaCoCo
+```xml
+<plugin>
+  <groupId>org.jacoco</groupId>
+  <artifactId>jacoco-maven-plugin</artifactId>
+  <version>0.8.7</version>
+  <executions>
+    <execution>
+      <goals>
+        <goal>prepare-agent</goal>
+        <goal>report</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+```
 
 ## Informes personalizados
-Maven que nos permite generar nuestro sitio web de documentación de manera mas completa o con unas opciones predeterminadas para ello usamos el plugin de Maven-site-plugin y configurar la opción de reporting.
+Una de las mayores ventajas de Maven es la capacidad de personalizar los informes generados para adaptarlos a las necesidades del proyecto. Utilizando el Maven Site Plugin, es posible configurar las opciones de informes dentro del pom.xml para generar un sitio web de documentación más completo o personalizado.
+Esto es útil si se requiere incluir informes adicionales como análisis de seguridad, métricas de rendimiento, o cualquier otro informe que no esté cubierto por los informes predeterminados de Maven. Los desarrolladores pueden definir qué informes se incluyen en el sitio web, organizar los informes y aplicar configuraciones predeterminadas para hacer más eficiente la generación de la documentación.
 
 ## Publicar documentacion de mi sitio
-Para ello usaremos distributionManagement y agregar el servidor en nuestro setting.xml y una vez terminado usaremos el comando mvn site-deploy, si queremos verificar el estado de nuestra documentación antes de publicarlo podemos usar el comando mvn site:run, lo que hará será lanzar un servidor local jetty con nuestra documentación publicada en el 
+Para publicar la documentación generada por Maven en un servidor web, se debe configurar el parámetro distributionManagement dentro del pom.xml y agregar la configuración del servidor en el archivo settings.xml. Después de configurar correctamente la distribución, el siguiente comando se utiliza para desplegar la documentación en el servidor
+Si se desea comprobar la apariencia de la documentación antes de su despliegue final, se puede utilizar el siguiente comando, que ejecuta un servidor local con Jetty y muestra cómo quedará el sitio
+
+```bash
+mvn site-deploy
+mvn site:run
+```
+## FindBugs/PMD
+### FindBugs en Maven
+FindBugs es una herramienta de análisis estático que busca errores potenciales en el código Java. Los errores que detecta incluyen bugs comunes, como el uso incorrecto de los objetos, referencias nulas, posibles errores de concurrencia y otros problemas que pueden ser difíciles de identificar durante las pruebas. FindBugs clasifica los errores según su gravedad, ayudando a los desarrolladores a priorizar los problemas a resolver.
+
+Para integrar FindBugs en un proyecto Maven y generar los informes correspondientes, debes seguir estos pasos:
+- Configuración del Plugin FindBugs
+Para habilitar FindBugs en Maven, primero debes agregar el plugin findbugs-maven-plugin al archivo pom.xml de tu proyecto. A continuación se muestra un ejemplo de cómo configurarlo
+```xml
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>findbugs-maven-plugin</artifactId>
+      <version>3.0.5</version>
+      <executions>
+        <execution>
+          <goals>
+            <goal>findbugs</goal>
+            <goal>html</goal> <!-- Para generar un reporte en formato HTML -->
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+```
+
+Para generar el informe de FindBugs, ejecuta el siguiente comando:
+```bash
+mvn site
+```
+
+### PMD
+PMD es otra herramienta de análisis estático que ayuda a identificar posibles problemas en el código, como violaciones de buenas prácticas, código redundante, violaciones de estilo y otros problemas de calidad. A diferencia de FindBugs, que se centra más en bugs potenciales, PMD se enfoca en la legibilidad y el mantenimiento del código, identificando patrones de diseño inadecuados o código innecesario.
+
+Configuración del Plugin PMD
+Para integrar PMD en un proyecto Maven y generar los informes correspondientes, debes agregar el plugin pmd-maven-plugin al archivo pom.xml del proyecto. Aquí te muestro un ejemplo de configuración:
+```xml
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>pmd-maven-plugin</artifactId>
+      <version>3.13.0</version>
+      <executions>
+        <execution>
+          <goals>
+            <goal>pmd</goal> <!-- Análisis de código -->
+            <goal>cpd</goal> <!-- Detección de duplicados de código -->
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+```
+Para generar el informe de PMD, ejecuta el siguiente comando:
+```bash
+mvn site
+```
+
+### Integración de FindBugs y PMD en un Solo Reporte
+Es posible combinar los informes de FindBugs y PMD en un solo sitio web de Maven, lo que te permite ver toda la información relevante sobre la calidad del código en un solo lugar. Esto se logra configurando ambos plugins dentro del pom.xml y ejecutando el comando mvn site.
+
+Configuración Combinada:
+```xml
+<build>
+  <plugins>
+    <!-- Plugin FindBugs -->
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>findbugs-maven-plugin</artifactId>
+      <version>3.0.5</version>
+      <executions>
+        <execution>
+          <goals>
+            <goal>findbugs</goal>
+            <goal>html</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+
+    <!-- Plugin PMD -->
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>pmd-maven-plugin</artifactId>
+      <version>3.13.0</version>
+      <executions>
+        <execution>
+          <goals>
+            <goal>pmd</goal>
+            <goal>cpd</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+```
+
+```bash
+mvn site
+```
 
 # Diagnóstico y Resolución de Problemas en Maven
 Cuando trabajamos con Maven, es común encontrarse con problemas que afectan el proceso de construcción y ejecución de proyectos. Estos problemas pueden ser causados por una serie de factores, como dependencias corruptas, configuraciones incorrectas o plugins mal configurados. A continuación, se describen las estrategias de diagnóstico y resolución de problemas más comunes, incluidas las herramientas y enfoques más avanzados para solucionar estos problemas.
@@ -1080,3 +1247,40 @@ Forzar una actualización: Si las dependencias no se actualizan automáticamente
 mvn clean install -U
 ```
 La opción -U obliga a Maven a actualizar las dependencias incluso si ya existen en el repositorio local.
+
+# Fichero mvnw (mvnw.cmd)
+tiene una utilidad clave relacionada con la automatización de la construcción del proyecto sin necesidad de tener Maven instalado globalmente en el sistema. Este fichero es parte de un mecanismo llamado Maven Wrapper, que facilita la gestión de las versiones de Maven en un proyecto y asegura que el entorno de construcción sea consistente para todos los desarrolladores del equipo, sin importar la versión de Maven que cada uno tenga instalada.
+
+## Cómo Funciona el Maven Wrapper
+Cuando un desarrollador ejecuta el script mvnw (en sistemas Unix o macOS) o mvnw.cmd (en Windows), el wrapper realiza las siguientes acciones:
+- Verifica si Maven está instalado: Si Maven no está instalado en el sistema, el Maven Wrapper descarga automáticamente la versión de Maven especificada en el archivo maven-wrapper.properties.
+- Descarga la versión de Maven: Si Maven no está disponible o si la versión requerida no está presente, el wrapper descarga la versión de Maven especificada y la utiliza para ejecutar las tareas necesarias (como compilar el proyecto, ejecutar pruebas, etc.).
+- Ejecuta el comando Maven: Después de descargar Maven (si es necesario), el wrapper ejecuta el comando Maven correspondiente en el proyecto, como si fuera un script normal de Maven (mvn).
+Esto asegura que todos los miembros del equipo de desarrollo usen la misma versión de Maven, incluso si tienen diferentes versiones instaladas en sus máquinas locales.
+
+# Comandos maven
+- mvn clean: Elimina los archivos generados en el ciclo de vida anterior (como los archivos compilados o empaquetados). Este comando es útil para asegurarse de que la próxima compilación sea completamente nueva, sin artefactos de compilaciones anteriores
+- mvn compile: Compila el código fuente del proyecto en el directorio src/main/java y lo coloca en el directorio target/classes
+- mvn test:Ejecuta las pruebas unitarias del proyecto utilizando un framework como JUnit. Se realiza sobre el código fuente que está en src/test/java
+- mvn package: Toma el código compilado y lo empaqueta en un archivo (por ejemplo, JAR, WAR) según la configuración del proyecto en el archivo pom.xml
+- mvn install: Instala el paquete (por ejemplo, JAR, WAR) en el repositorio local de Maven (~/.m2/repository). Esto es útil para proyectos que están siendo utilizados como dependencias en otros proyectos
+- mvn deploy: Envía el artefacto (como JAR, WAR) al repositorio remoto configurado en el pom.xml. Este paso es comúnmente utilizado cuando se está listando un artefacto para ser utilizado por otros equipos o proyectos
+- mvn validate Verifica que la configuración del proyecto sea correcta antes de ejecutar los pasos de construcción. Es útil para asegurarse de que todos los elementos del pom.xml están configurados correctamente.
+- mvn sit: Genera el sitio de documentación del proyecto. El sitio incluye información como las dependencias, los informes de cobertura, el historial de cambios y otros detalles configurables.
+- mvn clean install: Combina los comandos clean e install. Primero limpia cualquier archivo anterior y luego construye e instala el artefacto en el repositorio local.
+- mvn clean package: Limpia los artefactos de construcción anteriores y luego empaqueta el proyecto en un archivo JAR o WAR.
+- mvn clean deploy: Limpia los artefactos anteriores y luego envía el paquete construido al repositorio remoto.
+- mvn exec:java: Ejecuta una clase Java directamente desde Maven sin necesidad de compilar primero. Es útil para ejecutar aplicaciones Java desde un proyecto Maven sin crear un paquete.
+- mvn dependency:tree: Muestra la jerarquía de dependencias del proyecto, es decir, todas las bibliotecas y sus dependencias transitivas.
+- mvn dependency:copy-dependencies: Copia todas las dependencias de un proyecto en un directorio específico.
+- mvn versions:display-dependency-updates: Muestra las actualizaciones disponibles para las dependencias del proyecto.
+- mvn versions:use-latest-versions: Actualiza todas las dependencias del proyecto a sus versiones más recientes.
+- mvn help:effective-pom: Muestra la configuración efectiva del pom.xml, incluyendo todos los valores heredados de los POMs superiores y las dependencias transitivas.
+- mvn clean verify: Limpia el proyecto y luego realiza la compilación, las pruebas y la verificación de que el proyecto está en buen estado. Utiliza el ciclo de vida de validación para comprobar que el proyecto cumple con todos los requisitos de calidad.
+- mvn archetype:generate: Crea un nuevo proyecto Maven a partir de una plantilla ("arquetipo"). Esto es útil cuando quieres empezar un proyecto con una estructura básica predefinida.
+- mvn release:prepare: Prepara un proyecto para ser liberado. Este comando realiza varias tareas, como incrementar la versión del proyecto y etiquetar el repositorio.
+- mvn release:perform: Realiza el proceso de liberar el proyecto, como subir el artefacto al repositorio de liberación después de preparar la versión.
+- mvn deploy:deploy-file: Utiliza Maven para desplegar un archivo específico (no generado en el ciclo de vida de Maven) en un repositorio remoto. Es útil cuando tienes artefactos fuera del ciclo habitual de construcción.
+- mvn clean test: Limpia el proyecto y luego ejecuta las pruebas. Es útil para asegurarse de que las pruebas se ejecutan sobre un código limpio.
+- mvn compile exec:java: Compila el proyecto y luego ejecuta la clase principal definida en el pom.xml.
+- mvn clean verify site Función: Limpia el proyecto, ejecuta las pruebas, verifica que todo esté en orden y luego genera el sitio de documentación del proyecto.
