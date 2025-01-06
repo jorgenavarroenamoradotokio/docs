@@ -6,18 +6,18 @@
 - [Introducción](#introducción)
   - [Principales funciones y objetivos](#principales-funciones-y-objetivos)
     - [Principales funciones](#principales-funciones)
-    - [Princiaples objetivos](#princiaples-objetivos)
-  - [Comparacion entre Gradle, Ant y Maven](#comparacion-entre-gradle-ant-y-maven)
+    - [Principales objetivos](#principales-objetivos)
+  - [Comparación entre Gradle, Ant y Maven](#comparación-entre-gradle-ant-y-maven)
     - [Maven vs Ant](#maven-vs-ant)
     - [Maven vs Gradle](#maven-vs-gradle)
-- [Instalacion](#instalacion)
-  - [Instalacion simple](#instalacion-simple)
+- [Instalación](#instalación)
+  - [Instalación simple](#instalación-simple)
     - [Requisitos Previos](#requisitos-previos)
     - [Procedimiento de Instalación](#procedimiento-de-instalación)
-  - [Instalaccion avanzada](#instalaccion-avanzada)
+  - [Instalación avanzada](#instalación-avanzada)
     - [Mediante gestora de paquetes](#mediante-gestora-de-paquetes)
     - [En entornos de docker](#en-entornos-de-docker)
-    - [Configuracion de multiples versiones Maven (versiones paralelas)](#configuracion-de-multiples-versiones-maven-versiones-paralelas)
+    - [Configuración de múltiples versiones Maven (versiones paralelas)](#configuración-de-múltiples-versiones-maven-versiones-paralelas)
 - [Arquitectura y Ciclo de vida](#arquitectura-y-ciclo-de-vida)
   - [Arquitectura](#arquitectura)
   - [Ciclo de vida](#ciclo-de-vida)
@@ -29,7 +29,7 @@
 - [Archivo POM](#archivo-pom)
   - [dependencyManagement](#dependencymanagement)
   - [Propiedades del POM](#propiedades-del-pom)
-  - [Uso de Import para gestion dependencias a traves del BOM (Bill of Materials)](#uso-de-import-para-gestion-dependencias-a-traves-del-bom-bill-of-materials)
+  - [Uso de Import para gestión dependencias a través del BOM (Bill of Materials)](#uso-de-import-para-gestión-dependencias-a-través-del-bom-bill-of-materials)
 - [Plugins Esenciales y avanzados](#plugins-esenciales-y-avanzados)
   - [maven-clean](#maven-clean)
   - [maven-compiler-plugin: Ajuste de compiladores personalizados](#maven-compiler-plugin-ajuste-de-compiladores-personalizados)
@@ -44,7 +44,7 @@
   - [Diseño, organización y estrategia de proyectos multi-módulo](#diseño-organización-y-estrategia-de-proyectos-multi-módulo)
   - [Estrategias para empaquetado y despliegue de módulos relacionados](#estrategias-para-empaquetado-y-despliegue-de-módulos-relacionados)
   - [Dependencias internas entre módulos y su impacto en el ciclo de vida](#dependencias-internas-entre-módulos-y-su-impacto-en-el-ciclo-de-vida)
-- [Gestion de Repositorios](#gestion-de-repositorios)
+- [Gestión de Repositorios](#gestión-de-repositorios)
   - [Repositorio local](#repositorio-local)
   - [Repositorio remoto](#repositorio-remoto)
   - [Repositorio central](#repositorio-central)
@@ -52,7 +52,7 @@
 - [Perfiles](#perfiles)
   - [Perfiles en POM](#perfiles-en-pom)
   - [Perfiles en settings](#perfiles-en-settings)
-- [Gestion de dependencias](#gestion-de-dependencias)
+- [Gestión de dependencias](#gestión-de-dependencias)
   - [Análisis avanzado de conflictos de versiones (dependency:tree, dependency:analyze)](#análisis-avanzado-de-conflictos-de-versiones-dependencytree-dependencyanalyze)
     - [dependency:tree](#dependencytree)
     - [dependency:analyze](#dependencyanalyze)
@@ -62,18 +62,18 @@
   - [Estrategias de versionado semántico en dependencias](#estrategias-de-versionado-semántico-en-dependencias)
 - [Carpeta target](#carpeta-target)
 - [Configuración de settings.xml](#configuración-de-settingsxml)
-  - [Tipos de configuracion](#tipos-de-configuracion)
+  - [Tipos de configuración](#tipos-de-configuración)
     - [Combinación de configuraciones globales y locales](#combinación-de-configuraciones-globales-y-locales)
     - [Uso de perfiles](#uso-de-perfiles)
   - [Ubicación predeterminada](#ubicación-predeterminada)
   - [Modificación de la ruta de Maven (repositorio local o configuración)](#modificación-de-la-ruta-de-maven-repositorio-local-o-configuración)
   - [Ejecutar Maven desde un proxy](#ejecutar-maven-desde-un-proxy)
   - [Modificar repositorio central](#modificar-repositorio-central)
-- [Documentacion y Reportes](#documentacion-y-reportes)
+- [Documentación y Reportes](#documentación-y-reportes)
   - [JavaDoc](#javadoc)
   - [Informes de Cobertura de Pruebas](#informes-de-cobertura-de-pruebas)
   - [Informes personalizados](#informes-personalizados)
-  - [Publicar documentacion de mi sitio](#publicar-documentacion-de-mi-sitio)
+  - [Publicar documentación de mi sitio](#publicar-documentación-de-mi-sitio)
   - [FindBugs/PMD](#findbugspmd)
     - [FindBugs en Maven](#findbugs-en-maven)
     - [PMD](#pmd)
@@ -89,24 +89,24 @@
   
 
 # Introducción
-Es una herramienta de gestion de proyectos de proyectos para multiples lenguajes de programacion como java, c#, Ruby, Scala y frameworks como spring mvc y spring boot.
-Para poder realizar todas estas funciones Maven usa un archivo xml (documento pom.xml) donde describe como se va a construir y generar el proyecto software.
+Es una herramienta de gestión de proyectos de proyectos para múltiples lenguajes de programación como java, c#, Ruby, Scala y frameworks como spring mvc y spring boot.
+Para poder realizar todas estas funciones Maven usa un archivo xml (documento pom.xml) donde describe cómo se va a construir y generar el proyecto software.
 
 ## Principales funciones y objetivos
 ### Principales funciones
-- La gestion de dependencias del proyecto
-- Compilar el codigo fuente
-- Empaquetar el codigo (war, jar, zip...)
+- La gestión de dependencias del proyecto
+- Compilar el código fuente
+- Empaquetar el código (war, jar, zip...)
 - Instalar los paquetes de un repositorio en local
-- Generar documentacion a partir del codigo fuente
-- Gestionar las distintas fdases del ciclo de vida (build, validacion, generacion del codigo fuente, procesamiento, compilacion, testing)
+- Generar documentación a partir del código fuente
+- Gestionar las distintas fases del ciclo de vida (build, validacion, generacion del código fuente, procesamiento, compilacion, testing)
 
-### Princiaples objetivos
-- Permitir que un desarollador comprenda el estado completo de un producto en el menor tiempo posible.
-- Reducir la complejidad del proceso de construccion.
-- Fomentar las mejores practicas de desarrollo.
+### Principales objetivos
+- Permitir que un desarrollador comprenda el estado completo de un producto en el menor tiempo posible.
+- Reducir la complejidad del proceso de construcción.
+- Fomentar las mejores prácticas de desarrollo.
 
-## Comparacion entre Gradle, Ant y Maven
+## Comparación entre Gradle, Ant y Maven
 Aunque Maven revolucionó la gestión de proyectos en Java, otras herramientas como Gradle y Ant ofrecen alternativas según las necesidades específicas:
 
 ### Maven vs Ant
@@ -127,8 +127,8 @@ Ofrece un rendimiento superior gracias a la construcción incremental y el almac
 Soporte avanzado para proyectos multilingües y multiplataforma.
 Casos de uso óptimos: proyectos grandes y modernos con requisitos de rendimiento y flexibilidad, como aplicaciones móviles en Android o entornos poliglota.
 
-# Instalacion
-## Instalacion simple
+# Instalación
+## Instalación simple
 ### Requisitos Previos
 - Java Development Kit (JDK): Es fundamental asegurarse de contar con una versión 8 o superior del JDK, dado que Maven depende directamente del entorno Java para ejecutar sus procesos. Es recomendable utilizar la última versión compatible para maximizar la estabilidad y el rendimiento.
 - Variables de entorno esenciales:
@@ -144,7 +144,7 @@ Casos de uso óptimos: proyectos grandes y modernos con requisitos de rendimient
 - En Linux/Mac: Edite los archivos ~/.bashrc o ~/.zshrc para añadir las rutas correspondientes.
 - Ejecute mvn -v para validar que Maven está correctamente instalado. Este comando debe mostrar información detallada sobre la versión de Maven y el entorno Java asociado.
 
-## Instalaccion avanzada 
+## Instalación avanzada 
 ### Mediante gestora de paquetes
 Los gestores de paquetes simplifican la instalación y actualización de Maven en sistemas operativos modernos. Cada gestor tiene características específicas:
 - Homebrew (macOS y Linux): Homebrew instala Maven en directorios estándar como /usr/local/Cellar. Esto facilita el acceso global y evita conflictos de versiones. Sin embargo, si se necesitan versiones específicas, se pueden emplear herramientas adicionales como brew switch o instalar Maven manualmente.
@@ -183,7 +183,7 @@ docker run -it --rm \
   maven:3.8.6-jdk-11 mvn clean install
 ```
 
-### Configuracion de multiples versiones Maven (versiones paralelas)
+### Configuración de múltiples versiones Maven (versiones paralelas)
 En equipos que trabajan con múltiples proyectos, puede ser necesario manejar varias versiones de Maven simultáneamente.
 - Instalación manual de versiones paralelas:
 Descargar versiones específicas desde el sitio oficial: https://maven.apache.org/download.cgi.
@@ -215,8 +215,8 @@ La arquitectura de Maven se fundamenta en componentes clave que garantizan la ge
 - Modelo POM (Project Object Model): El archivo POM (pom.xml) es el nodo central de configuración en Maven. Contiene metadatos esenciales del proyecto, dependencias, configuraciones de plugins y definiciones específicas para la ejecución del ciclo de vida.
 - Repositorios: Maven utiliza repositorios para gestionar artefactos y dependencias.
 - Ciclo de Vida del Build: El proceso de construcción en Maven se organiza en fases, agrupadas en ciclos de vida estandarizados que permiten ejecutar tareas secuenciales.
-- Sistema de Plugins:Los plugins son el motor funcional de Maven. Permiten ejecutar tareas como compilación, pruebas, empaquetado y generación de reportes, entre otras.
-- Convenciones Predeterminadas: Maven minimiza configuraciones manuales mediante convenciones como la estructura estándar de proyectos y la resolución automática de dependencias transativas.
+- Sistema de Plugins: Los plugins son el motor funcional de Maven. Permiten ejecutar tareas como compilación, pruebas, empaquetado y generación de reportes, entre otras.
+- Convenciones Predeterminadas: Maven minimiza configuraciones manuales mediante convenciones como la estructura estándar de proyectos y la resolución automática de dependencias transitivas.
 - Carpeta target
   
 ## Ciclo de vida
@@ -235,7 +235,7 @@ Fases
 - Package: Esta es otra de las fases que a mí me parecen fundamentales ya que se encarga de empaquetar nuestro código a un formato standard de Java que permita su ejecución o despliegue en servidor
 - Verify: Esta fase del ciclo de vida se encarga de lanzar los test de integración para confirmar que todo funciona correctamente y que la calidad es la correcta.
 - Install: Es otra de las fases más importantes cuando trabajas con Maven ya que se encarga de desplegar el artefacto en el repositorio local con su versionado de tal forma que otros artefactos puedan hacer uso de él. Hasta este punto se abordan las fases más habituales de trabajar con Maven ya disponemos del artefacto instalado en el repositorio y otros artefactos lo podrán añadir a sus dependencias sin ningún problema
-- Deploy: Esta fase cuesta mucho entenderla a los desarrolladores ya que ejecutar un Maven Deploy muchas veces en un entorno meramento local no se realiza. Sin embargo, es una fase clave cuando disponemos de una serie de artefactos que deseamos compartir entre desarrollos ya que permite desplegar el artefacto en un servidor remoto de tal forma que otros desarrolladores puedan utilizarlo.
+- Deploy: Esta fase cuesta mucho entenderla a los desarrolladores ya que ejecutar un Maven Deploy muchas veces en un entorno meramente local no se realiza. Sin embargo, es una fase clave cuando disponemos de una serie de artefactos que deseamos compartir entre desarrollos ya que permite desplegar el artefacto en un servidor remoto de tal forma que otros desarrolladores puedan utilizarlo.
 
 ### Ciclo de Vida Site
 Genera documentación y reportes relacionados con el proyecto.
@@ -333,7 +333,7 @@ Pasos principales para crear un plugin:
 # Archivo POM
 El archivo POM (pom.xml) es el nodo central de configuración en Maven. Contiene metadatos esenciales del proyecto, como el identificador del proyecto, la versión, el empaquetado y las dependencias.
 Esta compuesto por las siguientes partes:
-- ModelVersion: ndica la versión del esquema del modelo POM que se está utilizando. Actualmente, la versión estándar es 4.0.0.
+- modelVersion: Indica la versión del esquema del modelo POM que se está utilizando. Actualmente, la versión estándar es 4.0.0.
 - groupId: Proporciona un identificador único para la organización o grupo al que pertenece el proyecto. Este suele reflejar la estructura inversa del dominio de la empresa (por ejemplo, com.empresa.proyecto).
 - artifactId: Representa el nombre único del proyecto dentro del grupo. Es crucial para identificar el artefacto generado.
 - version: Denota la versión específica del proyecto, útil para identificar instancias específicas en desarrollo o producción (e.g., 1.0-SNAPSHOT).
@@ -497,7 +497,7 @@ Las propiedades en el POM permiten flexibilidad al habilitar la parametrización
 - Variables de configuración: Relacionadas con ajustes del entorno de Maven, prefijadas con settings.
 - Propiedades personalizadas: Especificadas dentro de <properties> en el POM.
 
-## Uso de Import para gestion dependencias a traves del BOM (Bill of Materials)
+## Uso de Import para gestión dependencias a través del BOM (Bill of Materials)
 Es un enfoque particularmente importante en el contexto de la gestión de proyectos y dependencias en lenguajes de programación como Java o Kotlin, especialmente en proyectos que utilizan Maven o Gradle como herramientas de construcción (build tools). El BOM, en este contexto, es una lista que describe las dependencias que un proyecto necesita para funcionar correctamente, y se utiliza para centralizar y gestionar las versiones de estas dependencias de manera eficiente.
 
 Consiste en declarar el BOM dentro del archivo de configuración de tu proyecto, como pom.xml (para Maven) o build.gradle (para Gradle). Esta declaración permite que el proyecto "importe" un conjunto de versiones específicas de las bibliotecas sin tener que especificarlas individualmente en cada dependencia.
@@ -520,7 +520,7 @@ En Maven, se puede importar un BOM utilizando el elemento <dependencyManagement>
 Los plugins de Maven son herramientas que permiten ejecutar tareas específicas durante el ciclo de vida de Maven. Cada plugin tiene un conjunto de objetivos que realizan tareas como compilar código, ejecutar pruebas, empaquetar archivos, entre otras. Aquí te explico cómo configurar algunos de los plugins más comunes de Maven de manera avanzada.
 
 ## maven-clean
-La principal funcion es eliminar el contenido de la carpeta target, gracias a que activa el ciclo de vida clean que lo compone el goal clean
+La principal función es eliminar el contenido de la carpeta target, gracias a que activa el ciclo de vida clean que lo compone el goal clean
 
 ## maven-compiler-plugin: Ajuste de compiladores personalizados
 maven-compiler-plugin: Ajuste de compiladores personalizados (como Lombok o AspectJ)
@@ -643,7 +643,7 @@ permite gestionar dependencias de manera avanzada, como copiar dependencias a un
 
 ## maven-resource-plugin
 Es utilizado para copiar los recursos del proyecto en el directorio de salida, los recursos pueden ser para ejecución del programa o para testing. Al usar este plugin se lanza el ciclo de vida default con los goals resource. Mueve/copia los recursos a la carpeta target.
-Para ejecutar este plugin lo podmeos hacer usando mvn process-resources o mvn resources:resources o cualquier fase que invoque de manera automática a este plugin.
+Para ejecutar este plugin lo podemos hacer usando mvn process-resources o mvn resources:resources o cualquier fase que invoque de manera automática a este plugin.
 Para los recursos de test sucede lo mismo se lanza de manera automática, usando el comando mvn resources:testResources
 
 ## maven-jacoo
@@ -699,14 +699,14 @@ El empaquetado y despliegue de un proyecto multi-módulo es crucial para asegura
 
 Estrategias comunes:
 - Empaquetado individual de módulos: Cada módulo se empaqueta de manera independiente y se despliega por separado. Esto permite actualizaciones y despliegues más ágiles. Sin embargo, este enfoque puede requerir que los módulos dependientes se gestionen adecuadamente para garantizar que el sistema final funcione correctamente.
-- Empaquetado como un solo artefacto: Algunos proyectos eligen empaquetar todos los módulos juntos en un único archivo o artefacto (como un archivo WAR, JAR, o EAR en Java), lo que facilita el despliegue pero puede hacer que el sistema sea menos flexible y más difícil de mantener.
+- Empaquetado como un solo artefacto: Algunos proyectos eligen empaquetar todos los módulos juntos en un único archivo o artefacto (como un archivo WAR, JAR, o EAR en Java), lo que facilita el despliegue, pero puede hacer que el sistema sea menos flexible y más difícil de mantener.
 - Versionado de módulos: Los módulos deben tener un sistema de versionado claro para evitar problemas de compatibilidad. Si un módulo cambia, el sistema debe asegurarse de que la nueva versión del módulo no rompa la compatibilidad con los módulos dependientes.
 
 Automatización del despliegue:
 - CI/CD: Los pipelines de Integración Continua y Despliegue Continuo (CI/CD) son esenciales en proyectos multi-módulo. Herramientas como Jenkins, GitLab CI o Travis CI pueden automatizar la construcción, prueba y despliegue de los módulos.
 - Contenedores: Los contenedores (como Docker) permiten empaquetar los módulos y sus dependencias en entornos aislados, facilitando el despliegue en diferentes entornos sin problemas de configuración.
 
-##  Dependencias internas entre módulos y su impacto en el ciclo de vida
+## Dependencias internas entre módulos y su impacto en el ciclo de vida
 En un proyecto multi-módulo, los módulos pueden tener dependencias entre sí. Estas dependencias internas son cruciales para la funcionalidad del sistema y deben ser gestionadas cuidadosamente para evitar problemas en el ciclo de vida del proyecto.
 
 Impacto en el ciclo de vida:
@@ -719,7 +719,7 @@ Estrategias para manejar dependencias internas:
 - Control de versiones: Establecer una política clara para el control de versiones de los módulos y sus dependencias, de modo que los módulos dependientes puedan adaptarse fácilmente a nuevas versiones sin romper la funcionalidad.
 - Pruebas de integración: Implementar pruebas de integración que aseguren que los módulos interactúan correctamente antes de ser desplegados.
 
-# Gestion de Repositorios
+# Gestión de Repositorios
 En Maven, un repositorio es un lugar donde se almacenan los artefactos (como JAR, WAR, EAR) generados y 
 utilizados en los proyectos. Existen tres tipos principales de repositorios en Maven: local, remoto y central.
 Maven utiliza estos repositorios para gestionar las dependencias de un proyecto, y cada tipo tiene un propósito específico.
@@ -754,7 +754,7 @@ Los perfiles se pueden agrupar de la siguiente manera.
 Como dato importante si el perfil definido en el archivo pom esta activo en el fichero de settings.xml prevalecerá la configuración definida en el settings
 
 ## Perfiles en POM
-Para poder crearlo se realizará dentro de las etiqueta profile con las siguientes propiedades
+Para poder crearlo se realizará dentro de las etiquetas profile con las siguientes propiedades
 - id: es un identificador único dentro de un perfil en el archivo
 - activation: se usa dentro de un perfil para especificar las condiciones bajo las cuales se activa ese perfil. Las condiciones de activación pueden basarse en variables como la propiedad del sistema, la presencia de un archivo o el entorno del sistema operativo 
   Propiedades posibles dentro de <activation>
@@ -819,14 +819,14 @@ Para poder crearlo se realizará dentro de las etiqueta profile con las siguient
 ```
 
 ## Perfiles en settings
-Para poder crealo se realizará dentro de la etiqueta profile con las siguientes propiedades
+Para poder créalo se realizará dentro de la etiqueta profile con las siguientes propiedades
 - id: El identificador único del perfil. Es esencial para activar este perfil de forma explícita desde la línea de comandos o mediante condiciones de activación.
-- activation: La sección <activation> define las condiciones bajo las cuales un perfil se activa automáticamente. Puedes activar un perfil en función de:
-  - <activeByDefault>: Si se establece en true, el perfil se activa por defecto.
-  - <property>: Activa el perfil si una propiedad del sistema tiene un valor específico.
-  - <jdk>: Activa el perfil si una versión de JDK específica está siendo utilizada.
-  - <os>: Activa el perfil dependiendo del sistema operativo (Linux, Windows, etc.).
-  - <file>: Activa el perfil si un archivo o directorio específico existe.
+- activation: La sección activation define las condiciones bajo las cuales un perfil se activa automáticamente. Puedes activar un perfil en función de:
+  - activeByDefault: Si se establece en true, el perfil se activa por defecto.
+  - property: Activa el perfil si una propiedad del sistema tiene un valor específico.
+  - jdk: Activa el perfil si una versión de JDK específica está siendo utilizada.
+  - os: Activa el perfil dependiendo del sistema operativo (Linux, Windows, etc.).
+  - file: Activa el perfil si un archivo o directorio específico existe.
 - repositories: Define repositorios adicionales desde los cuales Maven descargará dependencias cuando este perfil esté activo. Esto puede ser útil si necesitas repositorios privados o externos a los predeterminados.
 - pluginRepositories: Define repositorios específicos desde los cuales Maven descargará los plugins cuando este perfil esté activo. Esto es útil cuando usas plugins que no están disponibles en los repositorios predeterminados.
 - properties: Permite definir propiedades específicas del perfil que sobrescribirán las propiedades definidas globalmente o en el pom.xml. Estas propiedades pueden ser utilizadas en cualquier parte de la construcción de Maven.
@@ -873,11 +873,11 @@ Para poder crealo se realizará dentro de la etiqueta profile con las siguientes
 </settings>
 ```
 
-# Gestion de dependencias
+# Gestión de dependencias
 Las dependencias son librerías o bibliotecas de terceros que necesitamos para que nuestro proyecto pueda ejecutar algunas lógicas de negocio o para realizar pruebas unitarias.
 Pero existen casos en las que ciertas dependencias necesitan de otras dependencias, (las denominadas dependencias transitivas), necesitamos importarlas también en nuestro sistema para que funcionen correctamente
 
-Para declara una dependencia en nuestro pom deberemos de inclurilas en el apartado de dependecies y crear una etiqueta dependency en la que poseera el groupId, el artifactId y la versión y como valor opcional el scope.
+Para declara una dependencia en nuestro pom deberemos de incluirlas en el apartado de dependecies y crear una etiqueta dependency en la que poseerá el groupId, el artifactId y la versión y como valor opcional el scope.
 - Scope: El scope determina el alcance en el que las dependencias serán utilizadas en el proyecto. Dfine cuando y como esas despendencias estarán disponibles en el proceso de compilación y ejecución.
 Los Scope que ofrece Maven son:
   - Compile: Este es el scope por defecto. Las dependencias con este scope están disponibles en todas las fases del proyecto (compilación, prueba, ejecución).
@@ -969,12 +969,12 @@ Las propiedades que puedes modificar son las siguientes
 - LocalRepository: Indica el path donde se almacenarán todos los repositorios y librerías que necesita nuestros proyectos para funcionar
 - Offline: Indica si Maven debe de operar en modo fuera de línea, lo que permitirá si debe descargar actualizaciones o dependencias si no están disponibles
 - Proxies: Se emplea para indicar la información de los servidores proxy
-- Mirror: Se emplea para descagra dependencias de un repositorio espejo, esto quiere decir que evita descargar dependencias del repositorio central de Maven y lo obtiene desde otro como puede ser nexus.
+- Mirror: Se emplea para descarga dependencias de un repositorio espejo, esto quiere decir que evita descargar dependencias del repositorio central de Maven y lo obtiene desde otro como puede ser nexus.
 - Repositories: Permite configurar los tipos de repositorios relases o snapshots
 - PluginRepositories: Almacena bibliotecas de complementos y archivos asociados
 - Server: Es empelado para almacenar usuarios, contraseñas, llaves privadas, etc
 
-## Tipos de configuracion
+## Tipos de configuración
 En Maven, la configuración global y local se refiere a las diferentes ubicaciones donde puedes configurar los parámetros y propiedades que afectarán a tu proyecto. Maven tiene dos tipos principales de configuración:
 
 - Configuración global: Se encuentra en el archivo settings.xml global de Maven. Este archivo se encuentra en la carpeta conf del directorio de instalación de Maven (por ejemplo, C:\Program Files\Apache\Maven\conf\settings.xml en Windows) y afecta a todos los proyectos en la máquina.
@@ -999,7 +999,7 @@ La carpeta de Maven contiene los archivos que Maven usa para gestionar las depen
     - Archivo de configuración: El archivo settings.xml se encuentra en: ```C:\Users\<nombre_de_usuario>\.m2\settings.xml```
 
 ## Modificación de la ruta de Maven (repositorio local o configuración)
-Para ello debermos de buscar primero la carpeta .m2 y crear en ella el fichero settings.xml en el definiremos el path donde querremos que se almacenen los artefactos para los proyectos.
+Para ello deberemos de buscar primero la carpeta .m2 y crear en ella el fichero settings.xml en el definiremos el path donde querremos que se almacenen los artefactos para los proyectos.
 En caso de no estar en .m2 el documento settings.xml puede estar en la carpeta conf de la carpeta de instalación de Maven
 
 ```xml
@@ -1044,7 +1044,7 @@ internos de tu organización o repositorios personalizados, además del reposito
 </repositories>
 ```
 
-# Documentacion y Reportes
+# Documentación y Reportes
 Los informes y la documentación generada por Maven tienen varios propósitos importantes en el desarrollo de software, para poder generarlo usaremos el plugin mvn site:
 - Comunicación y comprensión del proyecto:
   - Documentación del código fuente: Maven puede generar documentación automáticamente a partir del código fuente, como Javadoc para proyectos Java. Esta documentación proporciona una guía clara sobre cómo utilizar las clases y métodos del código.
@@ -1067,7 +1067,7 @@ mvn javadoc:javadoc
 ```
 
 ## Informes de Cobertura de Pruebas
-Para generar informes de cobertura de pruebas, se puede integrar el plugin JaCoCo en el pom.xml. Este plugin analiza la cobertura de pruebas en el código, proporcionando métricas detalladas sobre qué tan exhaustivas son las pruebas. A continuación se muestra un ejemplo de configuración básica para JaCoCo
+Para generar informes de cobertura de pruebas, se puede integrar el plugin JaCoCo en el pom.xml. Este plugin analiza la cobertura de pruebas en el código, proporcionando métricas detalladas sobre qué tan exhaustivas son las pruebas. 
 ```xml
 <plugin>
   <groupId>org.jacoco</groupId>
@@ -1088,7 +1088,7 @@ Para generar informes de cobertura de pruebas, se puede integrar el plugin JaCoC
 Una de las mayores ventajas de Maven es la capacidad de personalizar los informes generados para adaptarlos a las necesidades del proyecto. Utilizando el Maven Site Plugin, es posible configurar las opciones de informes dentro del pom.xml para generar un sitio web de documentación más completo o personalizado.
 Esto es útil si se requiere incluir informes adicionales como análisis de seguridad, métricas de rendimiento, o cualquier otro informe que no esté cubierto por los informes predeterminados de Maven. Los desarrolladores pueden definir qué informes se incluyen en el sitio web, organizar los informes y aplicar configuraciones predeterminadas para hacer más eficiente la generación de la documentación.
 
-## Publicar documentacion de mi sitio
+## Publicar documentación de mi sitio
 Para publicar la documentación generada por Maven en un servidor web, se debe configurar el parámetro distributionManagement dentro del pom.xml y agregar la configuración del servidor en el archivo settings.xml. Después de configurar correctamente la distribución, el siguiente comando se utiliza para desplegar la documentación en el servidor
 Si se desea comprobar la apariencia de la documentación antes de su despliegue final, se puede utilizar el siguiente comando, que ejecuta un servidor local con Jetty y muestra cómo quedará el sitio
 
@@ -1102,7 +1102,7 @@ FindBugs es una herramienta de análisis estático que busca errores potenciales
 
 Para integrar FindBugs en un proyecto Maven y generar los informes correspondientes, debes seguir estos pasos:
 - Configuración del Plugin FindBugs
-Para habilitar FindBugs en Maven, primero debes agregar el plugin findbugs-maven-plugin al archivo pom.xml de tu proyecto. A continuación se muestra un ejemplo de cómo configurarlo
+Para habilitar FindBugs en Maven, primero debes agregar el plugin findbugs-maven-plugin al archivo pom.xml de tu proyecto
 ```xml
 <build>
   <plugins>
@@ -1132,7 +1132,7 @@ mvn site
 PMD es otra herramienta de análisis estático que ayuda a identificar posibles problemas en el código, como violaciones de buenas prácticas, código redundante, violaciones de estilo y otros problemas de calidad. A diferencia de FindBugs, que se centra más en bugs potenciales, PMD se enfoca en la legibilidad y el mantenimiento del código, identificando patrones de diseño inadecuados o código innecesario.
 
 Configuración del Plugin PMD
-Para integrar PMD en un proyecto Maven y generar los informes correspondientes, debes agregar el plugin pmd-maven-plugin al archivo pom.xml del proyecto. Aquí te muestro un ejemplo de configuración:
+Para integrar PMD en un proyecto Maven y generar los informes correspondientes, debes agregar el plugin pmd-maven-plugin al archivo pom.xml del proyecto.
 ```xml
 <build>
   <plugins>
@@ -1202,7 +1202,7 @@ mvn site
 ```
 
 # Diagnóstico y Resolución de Problemas en Maven
-Cuando trabajamos con Maven, es común encontrarse con problemas que afectan el proceso de construcción y ejecución de proyectos. Estos problemas pueden ser causados por una serie de factores, como dependencias corruptas, configuraciones incorrectas o plugins mal configurados. A continuación, se describen las estrategias de diagnóstico y resolución de problemas más comunes, incluidas las herramientas y enfoques más avanzados para solucionar estos problemas.
+Cuando trabajamos con Maven, es común encontrarse con problemas que afectan el proceso de construcción y ejecución de proyectos. Estos problemas pueden ser causados por una serie de factores, como dependencias corruptas, configuraciones incorrectas o plugins mal configurados.
 
 ## Estrategias depuracion
 ### Uso de -X (modo debug)
