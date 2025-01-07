@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/feature/git/logos/Git-Logo.svg">
+  <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/feature/redis/logos/Redis-logo.svg">
 </div>
 
 ## Índice
@@ -38,9 +38,12 @@
     - [Sobrescritura](#sobrescritura)
     - [Lectura](#lectura)
 - [Configuracion](#configuracion)
-  - [Configuracion avanzada](#configuracion-avanzada)
+  - [Configuración de Memoria](#configuración-de-memoria)
+  - [Configuración de Persistencia](#configuración-de-persistencia)
   - [Configuracion de seguridad](#configuracion-de-seguridad)
-- [Despliegue  en entornos cloud y on-premises](#despliegue--en-entornos-cloud-y-on-premises)
+    - [Autenticación y Roles](#autenticación-y-roles)
+    - [Cifrado con TLS](#cifrado-con-tls)
+    - [Aislamiento en red](#aislamiento-en-red)
 - [Patros de arquitectura](#patros-de-arquitectura)
   - [Caching](#caching)
   - [Session](#session)
@@ -50,9 +53,26 @@
   - [Distributed Locks](#distributed-locks)
   - [Geospatial Data](#geospatial-data)
 - [Escalabilidad y alta disponibilidad](#escalabilidad-y-alta-disponibilidad)
+  - [Sharding](#sharding)
+  - [Replica Sets](#replica-sets)
+  - [Failover Automático](#failover-automático)
+  - [Monitoreo y Ajuste de Rendimiento](#monitoreo-y-ajuste-de-rendimiento)
 - [Optimización](#optimización)
+  - [Diseño Eficiente de Claves](#diseño-eficiente-de-claves)
+  - [Uso Correcto de EXPIRE y TTL](#uso-correcto-de-expire-y-ttl)
+  - [Minimización de Operaciones de Escritura](#minimización-de-operaciones-de-escritura)
+  - [Compresión de Datos Almacenados](#compresión-de-datos-almacenados)
+  - [Políticas de Desalojo](#políticas-de-desalojo)
+  - [Evitar Almacenamiento de Datos Enormes en una Sola Clave](#evitar-almacenamiento-de-datos-enormes-en-una-sola-clave)
+  - [No Usar Redis como Base de Datos Relacional](#no-usar-redis-como-base-de-datos-relacional)
 - [Mantenimiento y resolucion](#mantenimiento-y-resolucion)
+  - [Resolución de Problemas Comunes](#resolución-de-problemas-comunes)
+  - [Recuperación de Datos en Casos de Falla](#recuperación-de-datos-en-casos-de-falla)
 - [Pruebas](#pruebas)
+  - [Pruebas de Carga y Estrés](#pruebas-de-carga-y-estrés)
+  - [Simulación de Tráfico Real](#simulación-de-tráfico-real)
+  - [Validación de Consistencia en Entornos Distribuidos](#validación-de-consistencia-en-entornos-distribuidos)
+  - [Pruebas de Rendimiento en Escenarios de Caché](#pruebas-de-rendimiento-en-escenarios-de-caché)
 - [Comandos](#comandos)
   - [Comandos Generales](#comandos-generales)
   - [Comandos de Claves](#comandos-de-claves)
@@ -304,21 +324,360 @@ GET hola
 ```
 
 # Configuracion
-## Configuracion avanzada
+## Configuración de Memoria
+Redis funciona en memoria, lo que lo hace extremadamente rápido pero también lo sujeta a limitaciones físicas.
+- Configuración de maxmemory
+Define el límite máximo de memoria que Redis puede utilizar. Si se alcanza el límite, Redis aplicará una política de desalojo para liberar espacio. (4gb)
+- Políticas de Desalojo
+Redis soporta varias políticas de desalojo para decidir qué datos eliminar cuando se alcanza el límite de memoria:
+  - noeviction: Rechaza las escrituras cuando no hay suficiente memoria.
+  - allkeys-lru: Elimina las claves menos usadas recientemente (LRU) en todo el espacio de claves.
+  - volatile-lru: Elimina las claves menos usadas recientemente, pero solo de las claves con un tiempo de expiración.
+  - allkeys-lfu: Elimina las claves menos usadas frecuentemente (LFU).
+  - volatile-lfu: Similar a volatile-lru, pero basado en uso frecuente.
+- Monitoreo y Ajustes
+  - Comando: INFO memory para monitorear el uso de memoria.
+  - Comando: MEMORY USAGE <key> para inspeccionar el tamaño de una clave específica.
+
+## Configuración de Persistencia
+Redis permite configurar persistencia para garantizar que los datos sobrevivan a reinicios o fallos.
+- Persistencia con RDB (Redis Database Backup)
+  - Realiza copias de seguridad periódicas del estado completo de la base de datos.
+  - Ideal para escenarios en los que no se necesita una recuperación estricta en tiempo real.
+- Persistencia con AOF (Append-Only File)
+  - Registra todas las operaciones de escritura en un archivo de registro.
+  - Permite una recuperación más precisa en comparación con RDB.
+- Persistencia Híbrida
+  - Combina las ventajas de RDB y AOF.
+  - Se utiliza desde Redis 6.0 para mejorar el rendimiento y reducir el tiempo de recuperación.
+- Compresión de Datos y Snapshots
+  - Redis permite ajustar el tamaño y la frecuencia de los snapshots (RDB) para optimizar el almacenamiento.
+  - Los datos se comprimen utilizando el algoritmo LZF para reducir el uso de disco.
+
 ## Configuracion de seguridad
-# Despliegue  en entornos cloud y on-premises
+Redis no está diseñado para estar directamente expuesto a internet. La configuración de seguridad adecuada es esencial.
+
+### Autenticación y Roles
+Desde Redis 6.0, se introdujo un sistema avanzado de Access Control Lists (ACL) que permite gestionar usuarios y permisos.
+
+- Configuración Básica
+Configurar una contraseña global:
+```bash
+requirepass "TuContraseñaSegura"
+```
+- Configuración de ACL
+Crear usuarios con permisos específicos:
+```bash
+acl setuser admin on >TuContraseñaSegura allkeys +@all
+acl setuser read_only on >OtraContraseña ~readonly:* +@read
+```
+
+- Ver usuarios configurados:
+```bash
+ACL LIST
+```
+
+### Cifrado con TLS
+Redis soporta TLS para asegurar la comunicación entre cliente y servidor.
+
+Requisitos:
+- Certificado SSL.
+- Configuración de los archivos de certificado y clave en redis.conf.
+
+```bash
+tls-cert-file /ruta/a/certificado.pem
+tls-key-file /ruta/a/clave.pem
+tls-ca-cert-file /ruta/a/ca-cert.pem
+tls-auth-clients yes
+```
+
+### Aislamiento en red
+Asegurar que Redis solo escuche en interfaces internas:
+- Implementar firewalls para restringir el acceso al puerto 6379.
+- Usar subnets privadas en entornos cloud para proteger Redis de accesos externos.
+
 # Patros de arquitectura
+Redis, con su modelo de datos versátil y alta velocidad, permite implementar patrones arquitectónicos efectivos para diversas aplicaciones modernas
+
 ## Caching
+Redis es ampliamente utilizado como una capa de caché para acelerar el acceso a datos. Hay tres estrategias principales para la implementación de caché.
+- Cache-aside (Lazy Loading): En este patrón, la aplicación consulta primero a Redis. Si la clave no está presente (cache miss), la aplicación obtiene los datos de la fuente original (por ejemplo, una base de datos), los devuelve al cliente y los almacena en Redis para futuras consultas.
+  - Flujo del patrón:
+    - Consulta a Redis.
+    - Si no existe la clave:
+      - Recupera los datos del sistema de origen.
+      - Almacena los datos en Redis con una clave y un TTL (Time-to-Live).
+- Write-through: La aplicación escribe simultáneamente en la fuente de datos original y en Redis. Este patrón garantiza que los datos en Redis siempre estén sincronizados con el sistema de origen.
+  - Ventajas: Simplicidad en la consistencia de los datos.
+  - Desventajas: Penalización de rendimiento debido a operaciones de escritura adicionales.
+
+- Write-back: 
+  - La aplicación actualiza primero los datos en Redis y luego sincroniza el sistema de origen en segundo plano.
+  - Este patrón mejora el rendimiento de escritura, pero requiere un mecanismo para garantizar la persistencia.
+
 ## Session
+Redis es ideal para gestionar sesiones debido a su velocidad y soporte para la expiración automática de claves.
+- Implementación
+  - Las sesiones se almacenan como claves en Redis.
+  - La clave puede ser un identificador único de sesión (como un token JWT).
+  - El valor contiene información de la sesión, generalmente en formato JSON.
+- Mejores Prácticas
+  - Usar claves con prefijos para distinguir las sesiones: session:session_id.
+  - Configurar un TTL adecuado para evitar la acumulación de sesiones inactivas.
+  - Encriptar o anonimizar datos sensibles antes de almacenarlos.
+
 ## Pub/Sub
+El sistema de publicación/suscripción de Redis es utilizado para enviar mensajes entre servicios o notificar eventos en tiempo real.
+- Comunicación entre Microservicios
+Redis Pub/Sub permite que los servicios publiquen eventos a un canal, mientras que otros servicios suscritos a ese canal reciben notificaciones.
+- Escenarios Comunes
+  - Actualización de datos en tiempo real (como feeds).
+  - Comunicación entre microservicios.
+  - Notificaciones y alertas.
+
 ## Task Queses
+Redis puede ser utilizado para gestionar colas de tareas mediante estructuras como listas o streams.
+- Colas con Listas: Las listas de Redis (LPUSH y RPOP) son útiles para implementar colas FIFO.
+- Procesamiento en Batch: Usar LRANGE para obtener varias tareas simultáneamente.
+- Streams para Tareas Avanzadas: Los streams permiten la entrega garantizada de mensajes y el manejo de consumidores múltiples.
+
 ## Rate Limiting
+Redis es efectivo para implementar restricciones de uso, como limitar solicitudes por usuario o IP.
+
+- Token Bucket
+  - Almacenar un contador en Redis que representa tokens disponibles.
+  - El cliente consume un token por cada solicitud, y los tokens se recargan a intervalos regulares.
+- Sliding Window Utiliza una lista o un conjunto ordenado para registrar las marcas de tiempo de las solicitudes y calcular el número de solicitudes permitidas en una ventana.
+
 ## Distributed Locks
+Redis proporciona mecanismos para gestionar bloqueos distribuidos, lo cual es esencial en entornos multiusuario o distribuidos.
+
+- Uso de SETNX
+  - SETNX (Set if Not Exists) es utilizado para adquirir un bloqueo.
+  - Una clave con un TTL asegura que el bloqueo se libere automáticamente si el proceso falla.
+- Redlock: Un algoritmo distribuido para garantizar bloqueos seguros en múltiples nodos Redis.
+
 ## Geospatial Data
+Redis soporta operaciones geoespaciales, útiles para aplicaciones que requieren búsquedas basadas en ubicación.
+
+- Añadir Datos Geográficos: Almacenar ubicaciones con coordenadas.
+- Búsquedas Basadas en Distancia: Encontrar ubicaciones dentro de un radio
+- Cálculo de Distancias: Calcular la distancia entre dos puntos
+
 # Escalabilidad y alta disponibilidad
+Redis ofrece varios mecanismos para manejar cargas de trabajo crecientes y garantizar la alta disponibilidad.
+
+## Sharding
+El sharding es una técnica de distribución horizontal que permite dividir los datos entre múltiples nodos. Redis soporta sharding nativo mediante Redis Cluster.
+- Redis Cluster
+Redis Cluster distribuye automáticamente los datos y la carga entre múltiples nodos, proporcionando alta escalabilidad y tolerancia a fallos.
+- Arquitectura
+Los datos se dividen en 16384 slots de hash.
+Cada nodo en el clúster maneja un subconjunto de estos slots.
+Redis Cluster soporta replicas: cada nodo principal puede tener uno o más nodos secundarios.
+- Slots y Claves Hash
+Redis Cluster asigna cada clave a un slot mediante una función de hash: CRC16(key) % 16384.
+Las claves que deben permanecer juntas (e.g., en operaciones como MGET) pueden utilizarse con etiquetas hash: key{tag}.
+- Replicación en el Clúster
+Cada nodo principal tiene uno o más nodos secundarios para garantizar alta disponibilidad.
+Si un nodo principal falla, el clúster promueve automáticamente una réplica como nuevo nodo principal.
+
+## Replica Sets
+Las réplicas en Redis se utilizan para mejorar la disponibilidad y distribuir la carga de lectura.
+
+## Failover Automático
+Redis ofrece mecanismos como Sentinel para monitorear las instancias y realizar failover automático en caso de fallos.
+- Configuración con Sentinel
+Redis Sentinel monitorea las instancias de Redis, detecta fallos y promueve réplicas automáticamente.
+- Integración con Herramientas Externas
+Redis Sentinel puede integrarse con herramientas como:
+  - Consul: Para registro de servicios.
+  - Zookeeper: Para coordinación distribuida y detección de servicios.
+
+## Monitoreo y Ajuste de Rendimiento
+El monitoreo de Redis es esencial para garantizar un alto rendimiento y detectar cuellos de botella.
+- Herramientas Nativas: 
+  - Redis CLI
+  - Redis Benchmark: Evaluar el rendimiento de Redis bajo carga
+- Integración con Herramientas de Monitoreo
+  - Prometheus y Grafana
+  - Elastic Stack
+
 # Optimización
+Redis es una herramienta de alto rendimiento, pero para aprovecharla al máximo, es crucial implementar prácticas óptimas de diseño y administración.
+
+## Diseño Eficiente de Claves
+Un diseño eficiente de claves facilita la organización de datos y reduce el tiempo necesario para localizar información.
+- Buenas Prácticas:
+  - Claves descriptivas pero compactas: Las claves deben ser lo suficientemente descriptivas para identificar su propósito, pero evitar ser excesivamente largas, ya que Redis almacena claves en memoria.
+  - Uso de prefijos: Implementar prefijos para categorizar claves y evitar colisiones en aplicaciones con múltiples subsistemas.
+  - Evitar caracteres especiales: Aunque Redis permite casi cualquier carácter en las claves, es preferible usar solo caracteres seguros para facilitar debugging y operaciones automatizadas.
+
+## Uso Correcto de EXPIRE y TTL
+Establecer un tiempo de expiración para las claves garantiza que los datos innecesarios no ocupen memoria indefinidamente.
+- Establecer expiración al crear claves
+- Actualizar TTL según sea necesario
+- Usar TTL para consultar el tiempo restante
+
+## Minimización de Operaciones de Escritura
+Las operaciones de escritura son costosas en términos de rendimiento y uso de memoria.
+
+- Usar comandos atómicos: Combinar múltiples operaciones en un solo comando cuando sea posible.
+Ejemplo: INCRBY, HSET, etc., en lugar de múltiples SET o GET seguidos por una modificación.
+- Evitar sobrescritura innecesaria: Antes de actualizar una clave, verificar si el valor ha cambiado
+
+## Compresión de Datos Almacenados
+Reducir el tamaño de los datos en Redis puede ahorrar memoria y mejorar el rendimiento.
+
+Uso de serialización eficiente:
+- Convertir datos a formatos compactos como MessagePack o Protobuf en lugar de JSON o strings sin procesar.
+- Compresión de datos grandes: Comprimir datos antes de almacenarlos en Redis usando herramientas como gzip.
+
+## Políticas de Desalojo
+Redis aplica políticas de desalojo cuando la memoria asignada está llena y se necesita espacio para nuevas claves. Configurar políticas adecuadas asegura que Redis gestione eficientemente los datos.
+
+Políticas Soportadas:
+- volatile-lru: Desaloja claves con TTL, basándose en el algoritmo Least Recently Used.
+- allkeys-lru: Aplica LRU a todas las claves.
+- volatile-lfu: Desaloja claves con TTL, basándose en la menor frecuencia de uso (Least Frequently Used).
+- allkeys-lfu: Similar a volatile-lfu, pero para todas las claves.
+- noeviction: Redis devuelve errores cuando no hay espacio disponible.
+
+## Evitar Almacenamiento de Datos Enormes en una Sola Clave
+Redis no está optimizado para manejar datos extremadamente grandes en una sola clave. Esto puede causar:
+- Bloqueos al acceder o modificar la clave.
+- Ineficiencia en el uso de memoria.
+
+Alternativa: Dividir datos grandes en fragmentos más pequeños
+
+## No Usar Redis como Base de Datos Relacional
+Redis es una base de datos NoSQL diseñada para velocidad, no para modelado relacional complejo. Usar Redis para relaciones como JOIN entre tablas puede llevar a ineficiencia y código difícil de mantener.
+
+Alternativa: Utilizar estructuras de datos nativas de Redis para simplificar relaciones
+- Hashes para almacenar entidades relacionadas.
+- Sets o Sorted Sets para manejar relaciones como rankings o referencias cruzadas.
+
 # Mantenimiento y resolucion
+El mantenimiento proactivo y la resolución de problemas son esenciales para garantizar que Redis siga siendo un componente confiable y eficiente en aplicaciones críticas. Este capítulo aborda los problemas comunes que pueden surgir, estrategias para mantener Redis en producción, y cómo realizar la recuperación de datos en caso de fallas.
+
+## Resolución de Problemas Comunes
+Redis, a pesar de su simplicidad y rendimiento, puede enfrentar problemas como uso excesivo de memoria, latencia elevada o bloqueos. A continuación, se presentan los pasos y herramientas para identificar y resolver estos problemas.
+
+- Identificación de Claves Grandes
+Las claves grandes o desbalanceadas pueden consumir una cantidad desproporcionada de memoria y afectar el rendimiento.
+Uso de SCAN: SCAN permite iterar sobre las claves de Redis sin bloquear el servidor.
+Uso de MEMORY USAGE: MEMORY USAGE mide el tamaño en bytes de una clave específica
+Automatización para encontrar claves grandes:
+Un script en Python para identificar claves que superen un umbral de tamaño
+```python
+import redis
+r = redis.StrictRedis(host='localhost', port=6379)
+for key in r.scan_iter():
+    size = r.memory_usage(key)
+    if size > 1024 * 1024:  # Claves mayores a 1 MB
+        print(f"Key: {key}, Size: {size} bytes")
+```
+
+- Manejo de Latencia y Bloqueos
+Comando INFO: Evalúa métricas generales del sistema
+Comando LATENCY DOCTOR: Identifica las causas comunes de latencia
+
+Causas Comunes y Soluciones:
+Operaciones costosas: 
+  - Evitar operaciones como KEYS, FLUSHALL, o DEL en claves grandes.
+  - Usar comandos alternativos: SCAN en lugar de KEYS.
+Bloqueos por persistencia:
+  - Redis puede bloquear durante la generación de snapshots (RDB) o al escribir un log de operaciones (AOF). 
+  - Solución: Configurar persistencia asíncrona y reducir la frecuencia de snapshots.
+Redes congestionadas:
+  - Verificar el tráfico entre clientes y Redis.
+  - Usar herramientas como tcpdump o netstat.
+
+## Recuperación de Datos en Casos de Falla
+Redis ofrece mecanismos para realizar copias de seguridad y restaurar datos en caso de fallos.
+- Backup (Respaldos)
+  - Snapshots (RDB)
+  - Logs de Operaciones (AOF)
+- Restore 
+  - Restauración desde RDB
+  - Restauración desde AOF
+
 # Pruebas
+Probar y validar Redis es esencial para garantizar su rendimiento y confiabilidad en entornos productivos. Este capítulo explora las mejores prácticas para realizar pruebas de carga y estrés, validar la consistencia en entornos distribuidos, y evaluar el rendimiento en escenarios de caché caliente y frío.
+
+## Pruebas de Carga y Estrés
+Redis ofrece herramientas integradas como redis-benchmark para medir el rendimiento bajo distintas cargas. Adicionalmente, se pueden simular escenarios de tráfico real para probar la capacidad del sistema.
+- Uso de redis-benchmark
+Redis-benchmark es una herramienta nativa para evaluar el rendimiento de Redis en términos de latencia, throughput, y operaciones por segundo (OPS).
+```bash
+redis-benchmark -q
+```
+Este comando realiza pruebas con los comandos más comunes (SET, GET, INCR, LPUSH, etc.) y muestra los resultados en términos de OPS.
+
+Análisis de Resultados
+- Latencia promedio: Debe mantenerse baja, idealmente en milisegundos.
+- OPS (Operaciones por segundo): Un valor alto indica que Redis está manejando eficientemente las solicitudes.
+
+## Simulación de Tráfico Real
+Para entender cómo Redis se comportará bajo cargas específicas, se recomienda usar simulaciones personalizadas que representen el tráfico de la aplicación.
+
+Herramientas Comunes:
+- Apache JMeter:
+Simula solicitudes a Redis mediante plugins especializados.
+Configura patrones de carga como picos repentinos o tráfico constante.
+- Redis Pipelining:
+Redis soporta pipelining, lo que permite enviar múltiples comandos en una sola conexión, reduciendo la sobrecarga de red.
+
+```python
+import redis
+r = redis.StrictRedis(host='localhost', port=6379)
+
+pipeline = r.pipeline()
+for i in range(1000):
+    pipeline.set(f"key:{i}", i)
+pipeline.execute()
+```
+
+Pruebas de Escenarios:
+- Carga constante: Simula un flujo continuo de operaciones para medir estabilidad.
+- Explosión de tráfico: Simula picos repentinos para evaluar cómo Redis maneja aumentos de carga.
+
+## Validación de Consistencia en Entornos Distribuidos
+En sistemas distribuidos, como Redis Cluster, garantizar la consistencia de datos es crucial, especialmente durante fallos o con configuraciones de replicación.
+
+- Validación de Operaciones Atómicas
+Redis asegura operaciones atómicas a nivel de comando, incluso en entornos distribuidos. Pruebas típicas incluyen:
+Confirmar que INCR o DECR no generan resultados incorrectos bajo alta concurrencia.
+Validar transacciones usando WATCH y MULTI.
+
+```python
+import redis
+r = redis.StrictRedis(host='localhost', port=6379)
+def increment_counter():
+    r.watch("counter")
+    current = int(r.get("counter") or 0)
+    pipeline = r.pipeline()
+    pipeline.multi()
+    pipeline.set("counter", current + 1)
+    pipeline.execute()
+
+increment_counter()
+```
+
+- Consistencia en Redis Cluster
+En Redis Cluster:
+Datos distribuidos: Verificar que las claves se distribuyen uniformemente entre los nodos mediante CLUSTER KEYSLOT.
+Replicación: Asegurar que los datos se replican correctamente en los nodos secundarios y validar la sincronización post-fallo.
+- Pruebas de Failover
+Simular fallos y validar:
+Promoción de réplicas: Usando Redis Sentinel.
+Consistencia eventual: Asegurar que los datos están disponibles en todos los nodos después de un fallo.
+
+## Pruebas de Rendimiento en Escenarios de Caché
+Redis como caché puede operar en dos estados principales:
+- Caché caliente: La mayoría de los datos solicitados están ya en memoria.
+- Caché frío: Los datos solicitados no están inicialmente disponibles en memoria
+
 # Comandos
 ## Comandos Generales
 - AUTH: Autenticación para conectarse a Redis (si se configura contraseña).
