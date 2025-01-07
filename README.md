@@ -5,3 +5,4 @@ Proyecto que almacena la documentación de diferentes tecnologías
 - JUnit
 - Git
 - Maven
+- Redis
