@@ -6,7 +6,7 @@
 - [Introducción](#introducción)
   - [Arquitectura](#arquitectura)
   - [Modelo de base de datos en memoria (In-memory) y persistencia](#modelo-de-base-de-datos-en-memoria-in-memory-y-persistencia)
-- [Instalacción](#instalacción)
+- [Instalación](#instalación)
   - [Sistemas Linux (Ubuntu/Debian)](#sistemas-linux-ubuntudebian)
   - [Sistemas Linux (CentOS)](#sistemas-linux-centos)
   - [MacOs](#macos)
@@ -37,14 +37,14 @@
   - [Escritura](#escritura)
     - [Sobrescritura](#sobrescritura)
     - [Lectura](#lectura)
-- [Configuracion](#configuracion)
+- [Configuración](#configuración)
   - [Configuración de Memoria](#configuración-de-memoria)
   - [Configuración de Persistencia](#configuración-de-persistencia)
-  - [Configuracion de seguridad](#configuracion-de-seguridad)
+  - [Configuración de seguridad](#configuración-de-seguridad)
     - [Autenticación y Roles](#autenticación-y-roles)
     - [Cifrado con TLS](#cifrado-con-tls)
     - [Aislamiento en red](#aislamiento-en-red)
-- [Patros de arquitectura](#patros-de-arquitectura)
+- [Patrón de arquitectura](#patrón-de-arquitectura)
   - [Caching](#caching)
   - [Session](#session)
   - [Pub/Sub](#pubsub)
@@ -65,7 +65,7 @@
   - [Políticas de Desalojo](#políticas-de-desalojo)
   - [Evitar Almacenamiento de Datos Enormes en una Sola Clave](#evitar-almacenamiento-de-datos-enormes-en-una-sola-clave)
   - [No Usar Redis como Base de Datos Relacional](#no-usar-redis-como-base-de-datos-relacional)
-- [Mantenimiento y resolucion](#mantenimiento-y-resolucion)
+- [Mantenimiento y resolución](#mantenimiento-y-resolución)
   - [Resolución de Problemas Comunes](#resolución-de-problemas-comunes)
   - [Recuperación de Datos en Casos de Falla](#recuperación-de-datos-en-casos-de-falla)
 - [Pruebas](#pruebas)
@@ -114,14 +114,14 @@ Existen diversos mecanismos principales de persistencia:
 - AOF (Append Only File): En este modo, Redis guarda todas las operaciones que modifican la base de datos en un archivo de registro en disco. Cada vez que se realiza una operación, se agrega al final del archivo AOF. Este enfoque ofrece una mayor durabilidad, ya que permite una recuperación precisa de los datos en el caso de una caída del sistema. Sin embargo, las operaciones de escritura pueden ser más lentas en comparación con RDB debido a la escritura continua en disco.
 - Persistencia combinada: Redis también puede configurarse para usar ambos mecanismos, RDB y AOF, proporcionando un equilibrio entre rendimiento y durabilidad. En este caso, RDB se usa para realizar instantáneas periódicas, mientras que AOF asegura que las operaciones se registren de manera continua.
 
-# Instalacción
+# Instalación
 ## Sistemas Linux (Ubuntu/Debian)
 En sistemas basados en Linux, como Ubuntu o Debian, la instalación de Redis es bastante sencilla gracias a los paquetes precompilados disponibles en los repositorios oficiales.
 ```bash
 sudo apt update # actualizamos el indice de paquetes
 sudo apt install redis-server redis-tools # instalamos redis
-sudo systemctl status redis # verificamos que redis esta corriendo
-sudo systemctl enable redis # habilitamos redis para que se inice automaticamente
+sudo systemctl status redis # verificamos que redis está corriendo
+sudo systemctl enable redis # habilitamos redis para que se inicie automaticamente
 redis-cli # Entramos en la consola de redis
 ```
 
@@ -129,11 +129,11 @@ redis-cli # Entramos en la consola de redis
 Para sistemas como CentOS, el proceso de instalación es similar al de Ubuntu/Debian pero utilizando el gestor de paquetes yum o dnf (dependiendo de la versión).
 
 ```bash
-sudo yum install epel-release # actualizamos el indice de paquetes
+sudo yum install epel-release # actualizamos el índice de paquetes
 sudo yum install redis # instalamos redis
-sudo systemctl start redis # verificamos que redis esta corriendo
+sudo systemctl start redis # verificamos que redis está corriendo
 
-sudo systemctl enable redis # habilitamos redis para que se inice automaticamente
+sudo systemctl enable redis # habilitamos redis para que se inicie automáticamente
 sudo systemctl status redis 
 redis-cli # Entramos en la consola de redis
 ```
@@ -182,12 +182,12 @@ Si bien Redis permite claves de longitud arbitraria, es recomendable mantener la
 - session:xyz en lugar de user_session_data_for_xyz_user_in_the_system.
 
 ### Usar Claves Específicas y Descriptivas
-Las claves deben ser claras y auto-explicativas para poder identificar rápidamente lo que representan sin tener que analizar el contenido o el valor asociado.
+Las claves deben ser claras y auto explicativas para poder identificar rápidamente lo que representan sin tener que analizar el contenido o el valor asociado.
 - cart:{userId}:items (Lista de artículos en el carrito de compra del usuario).
 - order:{orderId}:status (Estado de un pedido identificado por su ID).
 
 ### Considerar la Expiración de Claves
-Cuando utilices claves que tienen una duración temporal, como sesiones de usuario o caché, es recomendable incluir un sufijo que indique su naturaleza temporal. Esto facilita la identificación y el mantenimiento de las claves expirables.
+Cuando utilices claves que tienen una duración temporal, como sesiones de usuario o caché, es recomendable incluir un sufijo que indique su naturaleza temporal. Esto facilita la identificación y el mantenimiento de las claves que puedan expirar.
 - session:{sessionId}:expires (Indicar la fecha de expiración de una sesión).
 - cache:{cacheKey}:ttl (Indicar el tiempo de vida de un cache).
 
@@ -300,14 +300,14 @@ SET hola "mundo"
 ```
 
 ### Sobrescritura
-Por defecto Redis es capaz de sobrescribir n veces la el valor de una clave para evitar esto debemos de agregar al comando de escritura la opcion NX o NN. 
-- Opcion NX
+Por defecto Redis es capaz de sobrescribir n veces la el valor de una clave para evitar esto debemos de agregar al comando de escritura la opción NX o NN. 
+- Opción NX
 Esta opcion solo lo registras cuando la clave/valor no existe y en caso de existir retornar (nil) y no modifica el valor
 ```bash
 set name "pepito" NX
 ```
-- Opcion XX
-Esta opcion solo lo registras cuando la clave/valor existe y queremos que modifique el valor. en caso de no existir retornar (nil) y no registrar el valor
+- Opción XX
+Esta opción solo lo registras cuando la clave/valor existe y queremos que modifique el valor. en caso de no existir retornar (nil) y no registrar el valor
 ```bash
 set name "pepito" XX
 ```
@@ -323,7 +323,7 @@ Proceso de Lectura:
 GET hola
 ```
 
-# Configuracion
+# Configuración
 ## Configuración de Memoria
 Redis funciona en memoria, lo que lo hace extremadamente rápido pero también lo sujeta a limitaciones físicas.
 - Configuración de maxmemory
@@ -354,7 +354,7 @@ Redis permite configurar persistencia para garantizar que los datos sobrevivan a
   - Redis permite ajustar el tamaño y la frecuencia de los snapshots (RDB) para optimizar el almacenamiento.
   - Los datos se comprimen utilizando el algoritmo LZF para reducir el uso de disco.
 
-## Configuracion de seguridad
+## Configuración de seguridad
 Redis no está diseñado para estar directamente expuesto a internet. La configuración de seguridad adecuada es esencial.
 
 ### Autenticación y Roles
@@ -396,7 +396,7 @@ Asegurar que Redis solo escuche en interfaces internas:
 - Implementar firewalls para restringir el acceso al puerto 6379.
 - Usar subnets privadas en entornos cloud para proteger Redis de accesos externos.
 
-# Patros de arquitectura
+# Patrón de arquitectura
 Redis, con su modelo de datos versátil y alta velocidad, permite implementar patrones arquitectónicos efectivos para diversas aplicaciones modernas
 
 ## Caching
@@ -524,7 +524,7 @@ Las operaciones de escritura son costosas en términos de rendimiento y uso de m
 
 - Usar comandos atómicos: Combinar múltiples operaciones en un solo comando cuando sea posible.
 Ejemplo: INCRBY, HSET, etc., en lugar de múltiples SET o GET seguidos por una modificación.
-- Evitar sobrescritura innecesaria: Antes de actualizar una clave, verificar si el valor ha cambiado
+- Evitar sobreescritura innecesaria: Antes de actualizar una clave, verificar si el valor ha cambiado
 
 ## Compresión de Datos Almacenados
 Reducir el tamaño de los datos en Redis puede ahorrar memoria y mejorar el rendimiento.
@@ -557,7 +557,7 @@ Alternativa: Utilizar estructuras de datos nativas de Redis para simplificar rel
 - Hashes para almacenar entidades relacionadas.
 - Sets o Sorted Sets para manejar relaciones como rankings o referencias cruzadas.
 
-# Mantenimiento y resolucion
+# Mantenimiento y resolución
 El mantenimiento proactivo y la resolución de problemas son esenciales para garantizar que Redis siga siendo un componente confiable y eficiente en aplicaciones críticas. Este capítulo aborda los problemas comunes que pueden surgir, estrategias para mantener Redis en producción, y cómo realizar la recuperación de datos en caso de fallas.
 
 ## Resolución de Problemas Comunes
@@ -667,7 +667,7 @@ increment_counter()
 - Consistencia en Redis Cluster
 En Redis Cluster:
 Datos distribuidos: Verificar que las claves se distribuyen uniformemente entre los nodos mediante CLUSTER KEYSLOT.
-Replicación: Asegurar que los datos se replican correctamente en los nodos secundarios y validar la sincronización post-fallo.
+Replicación: Asegurar que los datos se replican correctamente en los nodos secundarios y validar la sincronización post fallo.
 - Pruebas de Failover
 Simular fallos y validar:
 Promoción de réplicas: Usando Redis Sentinel.
@@ -689,11 +689,11 @@ Redis como caché puede operar en dos estados principales:
 - FLUSHALL: Elimina todas las claves de todas las bases de datos.
 - INFO: Proporciona información sobre el estado del servidor Redis.
 - TIME: Devuelve la hora del servidor Redis.
-- HELP @all: nos da toda la informacion de todos los comandos
+- HELP @all: nos da toda la información de todos los comandos
 
 ## Comandos de Claves
 
-- SCAN: Obtenemos todas las claves que coincidan con un patron de busqueda, los resultados nos los da paginados
+- SCAN: Obtenemos todas las claves que coincidan con un patrón de búsqueda, los resultados nos los da paginados
 - KEYS: Devuelve todas las claves que coincidan con un patrón.
 - DEL: Elimina una o más claves.
 - DUMP: Serializa la clave para poder almacenarla en otro lugar.
@@ -808,9 +808,9 @@ Redis como caché puede operar en dos estados principales:
 
 - PUBLISH: Publica un mensaje en un canal.
 - SUBSCRIBE: Se suscribe a uno o más canales.
-- UNSUBSCRIBE: Se desuscribe de uno o más canales.
+- UNSUBSCRIBE: Se de suscribe de uno o más canales.
 - PSUBSCRIBE: Se suscribe a uno o más canales con un patrón.
-- PUNSUBSCRIBE: Se desuscribe de uno o más canales con un patrón.
+- PUNSUBSCRIBE: Se de suscribe de uno o más canales con un patrón.
 
 ## Comandos de Transacciones
 
