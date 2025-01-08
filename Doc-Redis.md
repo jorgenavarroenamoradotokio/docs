@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/feature/redis/logos/Redis-logo.svg">
+  <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/main/logos/Redis-logo.svg">
 </div>
 
 ## Índice
