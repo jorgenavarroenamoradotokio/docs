@@ -235,8 +235,6 @@ Casos de uso:
 
 ### List
 Las lists son secuencias de elementos ordenados en Redis. Se pueden insertar y eliminar elementos desde ambos extremos de la lista, lo que las hace ideales para implementar estructuras como colas o pilas.
-
-Casos de uso:
 - Colas (Queues): Las listas de Redis son ideales para implementar sistemas de colas, como en el procesamiento de trabajos o tareas en segundo plano. Puedes usar las operaciones LPUSH y RPOP para agregar elementos al frente de la lista y consumirlos desde el final, creando una cola FIFO (First In, First Out).
 - Pipelines: Puedes usar listas para organizar operaciones en batch o pipelines, procesando múltiples tareas en paralelo. Redis permite insertar y recuperar varios elementos de una lista en una sola operación.
 - Mensajes en tiempo real: Almacenar mensajes para ser consumidos por otros sistemas.
@@ -245,45 +243,33 @@ Casos de uso:
 
 ### Sets y Sorted Sets
 Un set es una colección no ordenada de elementos únicos. Redis asegura que no haya duplicados en un set. No importa el orden de los elementos, y las operaciones en sets son rápidas y eficientes.
-
-Casos de uso:
 - Eliminar duplicados: Utilizar sets para almacenar datos de forma única sin preocuparse por los duplicados.
 - Sistemas de recomendación: Guardar elementos que se deben recomendar, como productos o servicios que un usuario ha interactuado.
 - Seguimiento de usuarios activos: Almacenar identificadores de usuarios activos de forma eficiente.
 
 Un sorted set es similar a un set, pero con la diferencia de que cada elemento en el conjunto tiene un puntaje (score) asociado. Los elementos se ordenan en función de este puntaje, lo que hace que los sorted sets sean ideales para casos en los que se necesita mantener un orden basado en algún criterio, como un ranking.
-
-Casos de uso:
 - Ranking de usuarios: Mantener una clasificación de usuarios según un puntaje (por ejemplo, puntuación en un juego o en una competencia).
 - Sistemas de recomendación: Ordenar artículos, productos o contenidos en función de la relevancia.
 - Liderazgo en tiempo real: Mostrar un ranking actualizado de la posición de los jugadores o usuarios en una aplicación.
 
 ### Bitmaps
 Los bitmaps permiten trabajar con grandes volúmenes de datos binarios (bits), donde cada bit puede ser 0 o 1. Redis proporciona operaciones eficientes para manipular y contar bits.
-
-Casos de uso:
 - Flags: Puedes usar bitmaps para representar flags (banderas) o estados, como el seguimiento de la actividad de un usuario en una aplicación. Cada bit puede representar si un usuario ha realizado una acción o no.
 - Contadores de usuarios activos: Un caso común es usar bitmaps para realizar un seguimiento de usuarios activos en un rango de tiempo o en un día determinado. Puedes usar BITCOUNT para contar cuántos bits están activados (representando usuarios activos).
 
 ### HyperLogLog
 HyperLogLog es una estructura de datos probabilística utilizada para estimar el número de elementos únicos en un conjunto. Aunque no es exacta, es muy eficiente en cuanto a uso de memoria y es útil para grandes volúmenes de datos.
-
-Casos de uso:
 - Contar elementos únicos: Estimar el número de visitas únicas a una página web o la cantidad de usuarios que han interactuado con una aplicación.
 - Rastreo de eventos únicos: Como el número de clics únicos, usuarios activos, o cualquier otro evento único.
 
 ### Streams
 Los streams en Redis son una estructura de datos que permite almacenar y gestionar flujos de mensajes ordenados. Son útiles para crear sistemas de mensajería, logs o procesos de eventos en tiempo real.
-
-Casos de uso:
 - Sistemas de mensajería: Implementar aplicaciones de mensajería en tiempo real donde los mensajes se almacenan en orden y se consumen de manera secuencial.
 - Logs y auditorías: Almacenar logs de eventos en tiempo real y procesarlos en orden cronológico.
 - Procesamiento de eventos: Gestionar flujos de eventos, como notificaciones en tiempo real, de manera eficiente.
 
 ### Geolocalización
 Redis permite almacenar y consultar datos geoespaciales mediante una serie de comandos optimizados para trabajar con ubicaciones geográficas.
-
-Casos de uso:
 - Sistemas de geolocalización: Almacenar la ubicación de usuarios, tiendas, eventos, etc., y realizar consultas de proximidad (por ejemplo, "¿cuáles son los usuarios más cercanos a mi ubicación?").
 - Aplicaciones de navegación: Utilizar Redis para optimizar la búsqueda y visualización de datos relacionados con ubicaciones geográficas.
 
@@ -410,7 +396,6 @@ Redis es ampliamente utilizado como una capa de caché para acelerar el acceso a
 - Write-through: La aplicación escribe simultáneamente en la fuente de datos original y en Redis. Este patrón garantiza que los datos en Redis siempre estén sincronizados con el sistema de origen.
   - Ventajas: Simplicidad en la consistencia de los datos.
   - Desventajas: Penalización de rendimiento debido a operaciones de escritura adicionales.
-
 - Write-back: 
   - La aplicación actualiza primero los datos en Redis y luego sincroniza el sistema de origen en segundo plano.
   - Este patrón mejora el rendimiento de escritura, pero requiere un mecanismo para garantizar la persistencia.
@@ -443,7 +428,6 @@ Redis puede ser utilizado para gestionar colas de tareas mediante estructuras co
 
 ## Rate Limiting
 Redis es efectivo para implementar restricciones de uso, como limitar solicitudes por usuario o IP.
-
 - Token Bucket
   - Almacenar un contador en Redis que representa tokens disponibles.
   - El cliente consume un token por cada solicitud, y los tokens se recargan a intervalos regulares.
@@ -451,15 +435,14 @@ Redis es efectivo para implementar restricciones de uso, como limitar solicitude
 
 ## Distributed Locks
 Redis proporciona mecanismos para gestionar bloqueos distribuidos, lo cual es esencial en entornos multiusuario o distribuidos.
-
 - Uso de SETNX
   - SETNX (Set if Not Exists) es utilizado para adquirir un bloqueo.
   - Una clave con un TTL asegura que el bloqueo se libere automáticamente si el proceso falla.
 - Redlock: Un algoritmo distribuido para garantizar bloqueos seguros en múltiples nodos Redis.
+- Uso de INCR y DECR: se usa para incrementar o decrementar en 1 un contador
 
 ## Geospatial Data
 Redis soporta operaciones geoespaciales, útiles para aplicaciones que requieren búsquedas basadas en ubicación.
-
 - Añadir Datos Geográficos: Almacenar ubicaciones con coordenadas.
 - Búsquedas Basadas en Distancia: Encontrar ubicaciones dentro de un radio
 - Cálculo de Distancias: Calcular la distancia entre dos puntos
@@ -521,21 +504,18 @@ Establecer un tiempo de expiración para las claves garantiza que los datos inne
 
 ## Minimización de Operaciones de Escritura
 Las operaciones de escritura son costosas en términos de rendimiento y uso de memoria.
-
 - Usar comandos atómicos: Combinar múltiples operaciones en un solo comando cuando sea posible.
 Ejemplo: INCRBY, HSET, etc., en lugar de múltiples SET o GET seguidos por una modificación.
 - Evitar sobreescritura innecesaria: Antes de actualizar una clave, verificar si el valor ha cambiado
 
 ## Compresión de Datos Almacenados
 Reducir el tamaño de los datos en Redis puede ahorrar memoria y mejorar el rendimiento.
-
 Uso de serialización eficiente:
 - Convertir datos a formatos compactos como MessagePack o Protobuf en lugar de JSON o strings sin procesar.
 - Compresión de datos grandes: Comprimir datos antes de almacenarlos en Redis usando herramientas como gzip.
 
 ## Políticas de Desalojo
 Redis aplica políticas de desalojo cuando la memoria asignada está llena y se necesita espacio para nuevas claves. Configurar políticas adecuadas asegura que Redis gestione eficientemente los datos.
-
 Políticas Soportadas:
 - volatile-lru: Desaloja claves con TTL, basándose en el algoritmo Least Recently Used.
 - allkeys-lru: Aplica LRU a todas las claves.
@@ -547,12 +527,10 @@ Políticas Soportadas:
 Redis no está optimizado para manejar datos extremadamente grandes en una sola clave. Esto puede causar:
 - Bloqueos al acceder o modificar la clave.
 - Ineficiencia en el uso de memoria.
-
 Alternativa: Dividir datos grandes en fragmentos más pequeños
 
 ## No Usar Redis como Base de Datos Relacional
 Redis es una base de datos NoSQL diseñada para velocidad, no para modelado relacional complejo. Usar Redis para relaciones como JOIN entre tablas puede llevar a ineficiencia y código difícil de mantener.
-
 Alternativa: Utilizar estructuras de datos nativas de Redis para simplificar relaciones
 - Hashes para almacenar entidades relacionadas.
 - Sets o Sorted Sets para manejar relaciones como rankings o referencias cruzadas.
