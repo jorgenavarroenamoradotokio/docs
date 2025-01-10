@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/main/logos/Redis-logo.svg">
+  <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/main/logos/GraphQL-Logo.svg">
 </div>
 
 ## Índice
@@ -24,6 +24,37 @@
   - [Uso de DataLoader para Optimización y Prevención de Problemas de N+1](#uso-de-dataloader-para-optimización-y-prevención-de-problemas-de-n1)
   - [Encadenamiento de Resolvers y Composición de Lógica de Negocio](#encadenamiento-de-resolvers-y-composición-de-lógica-de-negocio)
   - [Manejo de Errores en Resolvers](#manejo-de-errores-en-resolvers)
+- [Autenticación y autorización](#autenticación-y-autorización)
+  - [Métodos de Autenticación Comunes](#métodos-de-autenticación-comunes)
+    - [JSON Web Tokens (JWT)](#json-web-tokens-jwt)
+    - [OAuth 2.0](#oauth-20)
+    - [API Keys](#api-keys)
+  - [Configuración de Permisos con graphql-shield](#configuración-de-permisos-con-graphql-shield)
+- [Performance y Optimización](#performance-y-optimización)
+  - [Implementación de Paginación](#implementación-de-paginación)
+  - [Uso de Caching](#uso-de-caching)
+  - [Monitoreo de Consultas y Performance](#monitoreo-de-consultas-y-performance)
+  - [Análisis de la Carga Útil](#análisis-de-la-carga-útil)
+- [Gestión de Errores y Validaciones](#gestión-de-errores-y-validaciones)
+  - [Personalización de Mensajes de Error con GraphQLError](#personalización-de-mensajes-de-error-con-graphqlerror)
+  - [Formato de Respuesta Personalizado](#formato-de-respuesta-personalizado)
+  - [Uso de Extensiones de Error para Metadata Adicional](#uso-de-extensiones-de-error-para-metadata-adicional)
+  - [Validación de Entradas](#validación-de-entradas)
+  - [Manejadores Globales de Errores en el Servidor](#manejadores-globales-de-errores-en-el-servidor)
+- [Integración con Sistemas Existentes](#integración-con-sistemas-existentes)
+  - [Migración Progresiva de REST a GraphQL](#migración-progresiva-de-rest-a-graphql)
+  - [Integración con Bases de Datos (SQL/NoSQL)](#integración-con-bases-de-datos-sqlnosql)
+  - [Uso de GraphQL en Microservicios](#uso-de-graphql-en-microservicios)
+- [Testing](#testing)
+  - [Testing Unitario para Resolvers y Servicios](#testing-unitario-para-resolvers-y-servicios)
+  - [Tests de Integración para Queries y Mutations](#tests-de-integración-para-queries-y-mutations)
+  - [Tests E2E (End-to-End) con Cypress](#tests-e2e-end-to-end-con-cypress)
+  - [Simulación de Esquemas con graphql-mock](#simulación-de-esquemas-con-graphql-mock)
+- [Integración con Frontend](#integración-con-frontend)
+  - [Patrones de Estado y Caché en Clientes](#patrones-de-estado-y-caché-en-clientes)
+  - [Optimización de Datos y Fragmentos Reutilizables](#optimización-de-datos-y-fragmentos-reutilizables)
+  - [Implementación de Estrategias de Fetch Policy](#implementación-de-estrategias-de-fetch-policy)
+  - [Manejo de Errores en el Cliente](#manejo-de-errores-en-el-cliente)
 
 
 # Introducción
@@ -33,20 +64,16 @@ GraphQL es un lenguaje de consulta para APIs y un entorno de ejecución que sati
 - Flexibilidad en las Consultas
 En REST, cada recurso generalmente se expone mediante una URL específica, y para obtener datos relacionados, los clientes deben realizar múltiples solicitudes a diferentes endpoints. En GraphQL, los clientes pueden realizar una única consulta para recuperar múltiples recursos, estructurando la respuesta según sus necesidades.
 Ejemplo práctico: En REST, una aplicación que necesita información del usuario y sus publicaciones podría requerir dos endpoints (/user y /user/posts). En GraphQL, una consulta puede obtener ambos datos simultáneamente.
-- Performance Mejorada
-Reducción de Overfetching y Underfetching: En REST, las respuestas suelen incluir datos que el cliente no necesita (overfetching) o carecen de información adicional que requiere otra solicitud (underfetching). GraphQL elimina este problema permitiendo al cliente definir exactamente qué campos y relaciones necesita.
+- Performance Mejorada: Reducción de Overfetching y Underfetching: En REST, las respuestas suelen incluir datos que el cliente no necesita (overfetching) o carecen de información adicional que requiere otra solicitud (underfetching). GraphQL elimina este problema permitiendo al cliente definir exactamente qué campos y relaciones necesita.
 Optimización de la Red: Una sola solicitud de GraphQL puede reemplazar múltiples llamadas REST, reduciendo el tiempo de ida y vuelta (RTT) y optimizando el uso del ancho de banda.
-- Evolución de APIs sin Rupturas (Backward Compatibility)
-En GraphQL, las nuevas funcionalidades se añaden al esquema sin afectar las consultas existentes. Los campos obsoletos permanecen accesibles mientras los clientes migran a las nuevas versiones.
-- Documentación Incorporada
-GraphQL incluye introspección, lo que permite a los clientes inspeccionar el esquema y descubrir qué operaciones y tipos están disponibles. Herramientas como GraphiQL o Apollo Studio aprovechan esta característica para ofrecer interfaces interactivas y de autocompletado.
-- Ecosistema Declarativo y Orientado al Cliente
-GraphQL permite a los desarrolladores definir requisitos de datos en un formato declarativo, lo que resulta en aplicaciones front-end más predecibles y modulares.
+- Evolución de APIs sin Rupturas (Backward Compatibility): En GraphQL, las nuevas funcionalidades se añaden al esquema sin afectar las consultas existentes. Los campos obsoletos permanecen accesibles mientras los clientes migran a las nuevas versiones.
+- Documentación Incorporada: GraphQL incluye introspección, lo que permite a los clientes inspeccionar el esquema y descubrir qué operaciones y tipos están disponibles. Herramientas como GraphiQL o Apollo Studio aprovechan esta característica para ofrecer interfaces interactivas y de autocompletado.
+- Ecosistema Declarativo y Orientado al Cliente: GraphQL permite a los desarrolladores definir requisitos de datos en un formato declarativo, lo que resulta en aplicaciones front-end más predecibles y modulares.
 
 ## Conceptos Clave
 - Schema: El schema es el núcleo de GraphQL y define la forma de los datos que el servidor puede proporcionar. Describe los tipos de datos disponibles, sus campos y relaciones, y los métodos para acceder y modificar esos datos.
-Tipos Escalares: Definen datos primitivos como String, Int, Float, Boolean y ID.
-Tipos Personalizados: Representan entidades complejas como User o Product.
+  - Tipos Escalares: Definen datos primitivos como String, Int, Float, Boolean y ID.
+  - Tipos Personalizados: Representan entidades complejas como User o Product.
 
 ```graphql
 type User {
@@ -185,3 +212,259 @@ npm install dataloader
 ## Manejo de Errores en Resolvers
 - Errores Personalizados: GraphQL permite devolver errores personalizados para proporcionar más contexto a los clientes.
 - Códigos de Estado: Aunque GraphQL no utiliza códigos HTTP explícitos, se pueden emular con extensiones.
+
+# Autenticación y autorización
+En GraphQL, autenticación y autorización son pasos clave para garantizar la seguridad de las API.
+- Autenticación: Verifica la identidad del usuario (quién eres).
+- Autorización: Determina qué recursos o acciones están permitidos para un usuario autenticado (qué puedes hacer).
+Ambas se implementan típicamente a través del contexto (context) de GraphQL y resolvers.
+
+## Métodos de Autenticación Comunes
+### JSON Web Tokens (JWT)
+Los JWT son una solución común para autenticación basada en tokens. Incluyen información codificada en un token firmado digitalmente.
+
+- Ventajas:
+  - Stateless: No es necesario mantener una sesión en el servidor.
+  - Fácil de validar con una clave secreta.
+```javascript
+const jwt = require('jsonwebtoken');
+
+// Generar un JWT
+const token = jwt.sign({ userId: 123 }, 'secret_key', { expiresIn: '1h' });
+
+// Validar un JWT
+try {
+  const decoded = jwt.verify(token, 'secret_key');
+  console.log(decoded); // { userId: 123, iat: ..., exp: ... }
+} catch (err) {
+  console.error('Token inválido:', err.message);
+}
+```
+
+### OAuth 2.0
+OAuth permite a los usuarios autenticarse a través de un proveedor externo (como Google, GitHub o Facebook).
+
+Flujo de OAuth Simplificado:
+- El cliente redirige al usuario al proveedor (p. ej., Google).
+- El usuario otorga acceso.
+- El proveedor devuelve un token de acceso.
+- El servidor utiliza el token para acceder a la API del proveedor.
+```javascript
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+
+passport.use(new GoogleStrategy({
+  clientID: 'GOOGLE_CLIENT_ID',
+  clientSecret: 'GOOGLE_CLIENT_SECRET',
+  callbackURL: '/auth/google/callback',
+}, (accessToken, refreshToken, profile, done) => {
+  // Manejar el perfil del usuario
+  return done(null, profile);
+}));
+```
+
+### API Keys
+Las API Keys son identificadores únicos que autorizan el acceso a la API. Generalmente se incluyen en el encabezado de la solicitud.
+```javascript
+const validKeys = ['key1', 'key2', 'key3'];
+
+const validateApiKey = (key) => validKeys.includes(key);
+
+// Middleware
+const authenticateApiKey = (req, res, next) => {
+  const apiKey = req.headers['x-api-key'];
+  if (!validateApiKey(apiKey)) {
+    return res.status(403).send('Invalid API Key');
+  }
+  next();
+};
+```
+
+## Configuración de Permisos con graphql-shield
+graphql-shield es una librería que permite configurar permisos a través de un sistema basado en reglas.
+```bash
+npm install graphql-shield # instalacion
+```
+- Definir Reglas
+```javascript
+const { rule, shield, allow, deny } = require('graphql-shield');
+
+const isAuthenticated = rule()((parent, args, context) => {
+  return context.user !== null;
+});
+
+const isAdmin = rule()((parent, args, context) => {
+  return context.user.role === 'ADMIN';
+});
+
+const permissions = shield({
+  Query: {
+    secretData: isAuthenticated,
+  },
+  Mutation: {
+    deleteUser: isAdmin,
+  },
+});
+
+module.exports = permissions;
+```
+
+# Performance y Optimización
+## Implementación de Paginación
+La paginación es crucial en GraphQL para manejar grandes cantidades de datos de manera eficiente. Existen dos enfoques principales:
+- Paginación con Offset
+  - Ventajas:
+    - El estilo offset-based utiliza un índice para especificar el punto de inicio de los resultados.
+    - Sencillo de implementar.
+    - Familiar en bases de datos SQL (utilizando LIMIT y OFFSET).
+  - Desventajas:
+    - Puede volverse ineficiente con grandes conjuntos de datos debido al costo de saltar registros.
+    - Susceptible a problemas con datos que cambian frecuentemente.
+- Paginación con Cursor
+El estilo cursor-based utiliza un identificador único (cursor) en lugar de un índice, mejorando la eficiencia en conjuntos de datos grandes.
+  - Ventajas:
+    - Más eficiente para conjuntos de datos dinámicos.
+    - Reduce el impacto de inserciones/eliminaciones durante la paginación.
+  - Desventajas:
+    - Más complejo de implementar.
+    - Requiere cambios en el esquema y lógica de resolvers.
+
+## Uso de Caching
+Caching es esencial para mejorar la latencia y reducir la carga en el servidor.
+- Cache en el Cliente
+  - Apollo Client: Apollo Client incluye estrategias de cache como cache-first o network-only.
+- Cache en el Servidor
+  - Redis: Redis es una base de datos en memoria ideal para cachear resultados.
+
+## Monitoreo de Consultas y Performance
+- Apollo Studio: Apollo Studio permite monitorear, analizar y optimizar la API GraphQL.
+  - Características:
+    - Monitoreo de tiempo de respuesta.
+    - Análisis de consultas frecuentes.
+    - Reportes de errores.
+- GraphQL Inspector: Herramienta para validar esquemas, detectar cambios y optimizar consultas.
+
+## Análisis de la Carga Útil
+- Minimizar Overfetching: El overfetching ocurre cuando el cliente solicita más datos de los necesarios. Solución: Diseñar consultas específicas
+- Minimizar Underfetching: El underfetching ocurre cuando el cliente necesita múltiples consultas para obtener los datos requeridos. Solución: Usar consultas anidadas o fragmentos.
+
+# Gestión de Errores y Validaciones
+En GraphQL, los errores deben manejarse cuidadosamente para ofrecer mensajes útiles al cliente y garantizar que no se exponga 
+información sensible. La especificación de GraphQL define que los errores deben devolverse en el campo errors de la respuesta.
+```javascript
+{
+  "data": null,
+  "errors": [
+    {
+      "message": "Authentication failed",
+      "locations": [{ "line": 2, "column": 3 }],
+      "path": ["getUser"]
+    }
+  ]
+}
+```
+
+## Personalización de Mensajes de Error con GraphQLError
+GraphQL permite personalizar los mensajes de error mediante la clase GraphQLError.
+
+## Formato de Respuesta Personalizado
+El campo extensions permite agregar metadatos adicionales a los errores
+```json
+{
+  "errors": [
+    {
+      "message": "Authentication required",
+      "extensions": {
+        "code": "UNAUTHENTICATED",
+        "http": { "status": 401 }
+      }
+    }
+  ]
+}
+```
+
+## Uso de Extensiones de Error para Metadata Adicional
+Código de error (code): Para identificar el tipo de error.
+Información HTTP: Código de estado o encabezados.
+Detalles adicionales: Contexto específico del negocio
+
+## Validación de Entradas
+Validar entradas antes de procesarlas en el resolver es fundamental para mantener la seguridad y estabilidad de la API.
+- Validación con Tipos Personalizados: Puedes usar Scalars personalizados para realizar validaciones de entrada.
+- Validaciones Previas al Resolver: Puedes validar entradas utilizando librerías como Joi o Yup.
+
+## Manejadores Globales de Errores en el Servidor
+Un manejador global de errores te permite capturar y formatear errores de forma centralizada.
+- Apollo Server: Apollo Server proporciona un middleware para manejar errores globalmente.
+- con GraphQL Yoga: GraphQL Yoga también permite manejar errores de manera centralizada.
+
+# Integración con Sistemas Existentes
+GraphQL puede actuar como una capa intermedia para combinar y unificar múltiples APIs REST en una interfaz única y flexible. 
+Esto es especialmente útil en sistemas complejos con múltiples fuentes de datos.
+- Ventajas de Usar GraphQL sobre APIs REST
+  - Unificación: Permite combinar respuestas de múltiples endpoints en una única consulta.
+  - Reducción de Overfetching/Underfetching: Proporciona sólo los datos necesarios en un formato estructurado.
+  - Abstracción: Oculta la lógica y estructura de las APIs REST subyacentes.
+
+## Migración Progresiva de REST a GraphQL
+La migración progresiva permite implementar GraphQL de forma gradual sin interrumpir el funcionamiento de las APIs REST existentes.
+- Estrategia de Migración
+  - Identificar endpoints clave: Analiza qué partes de la API REST son las más solicitadas.
+  - Crear una capa de GraphQL: Implementa resolvers que llamen a los endpoints REST subyacentes.
+  - Agregar resolvers adicionales: Amplía el esquema GraphQL según sea necesario.
+  - Eventual desactivación de REST: Sustituye las llamadas directas a REST por consultas GraphQL
+
+## Integración con Bases de Datos (SQL/NoSQL)
+- Prisma: Prisma es una herramienta para trabajar con bases de datos relacionales de forma eficiente.
+- Sequelize: Sequelize es un ORM para bases de datos SQL.
+- Mongoose: Mongoose es una popular herramienta para bases de datos NoSQL como MongoDB.
+
+## Uso de GraphQL en Microservicios
+En arquitecturas de microservicios, GraphQL puede actuar como un gateway unificado para orquestar servicios independientes.
+- Apollo Federation: Apollo Federation permite combinar esquemas de diferentes microservicios en un único punto de acceso.
+- Schema Stitching: Schema Stitching combina esquemas de diferentes servicios en uno solo, pero no es tan dinámico como Apollo Federation.
+
+# Testing
+El testing en GraphQL asegura que los resolvers, queries, mutations, y servicios relacionados funcionen correctamente y manejen los casos límite. Este enfoque abarca pruebas unitarias, de integración, y end-to-end (E2E).
+
+## Testing Unitario para Resolvers y Servicios
+Los tests unitarios verifican la lógica individual de los resolvers y servicios aislados de otras dependencias.
+- Configuración de Herramientas
+  - Librerías principales: Jest, Mocha.
+  - Mocking de dependencias: Mock Service Worker, sinon.
+
+## Tests de Integración para Queries y Mutations
+Los tests de integración verifican el funcionamiento de múltiples resolvers y su interacción con las dependencias externas, como bases de datos o servicios.
+- Apollo Testing Utilities proporciona herramientas para probar esquemas completos.
+
+## Tests E2E (End-to-End) con Cypress
+Los tests E2E verifican que todo el flujo de trabajo desde el cliente hasta el servidor funcione correctamente.
+- Instala Cypress y configura un entorno de pruebas para interactuar con tu aplicación.
+
+## Simulación de Esquemas con graphql-mock
+graphql-mock permite simular esquemas para pruebas sin resolver datos reales.
+
+# Integración con Frontend
+La integración de GraphQL con el frontend requiere el manejo eficiente de datos, optimización de consultas, 
+y estrategias de gestión de errores. Aquí exploramos patrones avanzados y técnicas clave para aprovechar GraphQL en aplicaciones frontend.
+
+## Patrones de Estado y Caché en Clientes
+La elección de un cliente de GraphQL impacta directamente en cómo se gestionan el estado y la caché. Apollo Client y Relay son dos de las herramientas más utilizadas.
+- Apollo Client
+- Relay
+
+## Optimización de Datos y Fragmentos Reutilizables
+Fragmentos de GraphQL permiten dividir consultas en piezas reutilizables, optimizando el manejo de datos y reduciendo la duplicación.
+
+## Implementación de Estrategias de Fetch Policy
+GraphQL proporciona flexibilidad para manejar cómo y cuándo se obtienen los datos con políticas de obtención (Fetch Policies).
+- Principales Estrategias
+  - cache-first: Consulta primero en la caché y usa la red solo si no hay datos. Ideal para datos estáticos.
+  - network-only: Siempre obtiene datos de la red. Útil para datos en tiempo real.
+  - cache-and-network: Devuelve datos de la caché y actualiza con datos de la red. Equilibrio entre velocidad y frescura.
+  - no-cache: No almacena datos en caché. Recomendado para datos confidenciales.
+
+## Manejo de Errores en el Cliente
+El manejo de errores es crucial para proporcionar una buena experiencia al usuario. Se deben manejar tanto errores de red como de lógica del servidor.
+- Estado Optimista: El estado optimista permite predecir la respuesta de una operación antes de recibir datos del servidor, mejorando la experiencia del usuario.
+- Fallback UI: Una interfaz de reserva (fallback UI) proporciona mensajes amigables en caso de error.
