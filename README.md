@@ -6,3 +6,4 @@ Proyecto que almacena la documentación de diferentes tecnologías
 - Git
 - Maven
 - Redis
+- GraphQL
