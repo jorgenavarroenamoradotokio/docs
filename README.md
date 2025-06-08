@@ -5,3 +5,4 @@ Repositorio con manuales de múltiples tecnologías
 - JUnit
 - Maven
 - Redis
+- GraphQL
