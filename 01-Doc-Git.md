@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/main/logos/Git-Logo.svg">
+  <img src="https://raw.githubusercontent.com/jorgenavarroenamoradotokio/docs/main/logo/Git-Logo.svg">
 </div>
 
 ## Índice
